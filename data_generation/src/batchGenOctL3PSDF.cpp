@@ -14,9 +14,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fstream>
-#include "utility_file_read.h"
 using namespace std;
 
+namespace fs = std::experimental::filesystem;
 
 
 
@@ -146,34 +146,4 @@ int main(int argc, char** argv){
     system(command.c_str());
   }
 
-  // vector<string> ObjFileNames;
-  // getAllFormatFiles(dataDir, ObjFileNames, ".obj");
-  // for(auto s : ObjFileNames)
-  // {
-  //   cout << "processing " << s << endl;
-  //   string inMeshName = s;
-  //   // extract the folder path and obj file name from the input path
-  //   string folderPath = s.substr(0, s.find_last_of("/\\"));
-  //   string file = s.substr(s.find_last_of("/\\")+1);
-  //   file = file.substr(0, file.find_last_of("."));
-  //   cout << "file: " << file << endl;
-  //   // int id = stoi(file);
-    
-  //   string SDFName = outSDFDir + "/" + file + ".sdf";  
-  //   string reconObjName =  outObjDir + "/" + file + ".obj";
-  //   if (fs::exists(reconObjName)) {
-  //       cout << "Already computed! Skip!" << endl;
-  //       continue;
-  //   }
-  //   stringstream ss;
-  //   ss << "./genSamplesLocal3Pole " << inMeshName << " " << SDFName << " " << reconObjName << " " << regularRes << " " << writeSDF << endl;
-  //   // string output_ply_name = "";
-  //   // int octree_depth = 10;
-  //   // ss << "./genOctreeL3PSDFSamples " << inMeshName << " " << SDFName << " " << reconObjName << " " << output_ply_name << " "
-  //   //      << octree_depth << " " << 0 << " " << writeOBJ << " " << writeSDF << endl;
-  //   string command = ss.str();
-  //   cout << "executing command: " << command << endl;
-  //   system(command.c_str());
-  // }
-  
 }

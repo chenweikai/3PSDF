@@ -22,8 +22,8 @@
 #include <igl/copyleft/marching_cubes.h>
 #include <igl/signed_distance.h>
 #include <igl/read_triangle_mesh.h>
-#include <igl/opengl/glfw/Viewer.h>
-#include <igl/opengl/glfw/imgui/ImGuiMenu.h>
+// #include <igl/opengl/glfw/Viewer.h>
+// #include <igl/opengl/glfw/imgui/ImGuiMenu.h>
 #include <igl/parula.h>
 #include <igl/point_mesh_squared_distance.h>
 #include "igl/AABB.h"
@@ -51,64 +51,6 @@ void Barycentric(const Vector3d& p, const Vector3d& a, const Vector3d& b, const 
     w = (d00 * d21 - d01 * d20) / denom;
     u = 1.0f - v - w;
 }
-
-// void save_obj_mesh(string filename, const MatrixXd& verts, const MatrixXi& faces)
-// {
-//     ofstream fout (filename);
-
-//     if (fout.is_open())
-//     {
-//         map<int, int> indexMap; // used to filter out NAN vertices
-//         int idx = 0;
-//         for(int i=0; i < verts.rows(); ++i)
-//         {
-//             // cout << verts.row(i)[0] << endl;
-//             // system("pause");
-//             if (isnan(verts.row(i)[0]) || isnan(verts.row(i)[1]) || isnan(verts.row(i)[2]))
-//                 indexMap[i] = -1;
-//             else
-//             {
-//                 indexMap[i] = ++idx;
-//                 fout << "v " << verts.row(i)[0] << " " << verts.row(i)[1] << " " << verts.row(i)[2] << endl;
-//             }            
-//         }
-
-//         for(int i =0; i < faces.rows(); ++i)
-//         {
-//             int vid0 = faces.row(i)[0];
-//             int vid1 = faces.row(i)[1];
-//             int vid2 = faces.row(i)[2];
-
-//             auto it = indexMap.find(vid0);
-//             if (it == indexMap.end()) {
-//                 cerr << "Cannot find the vertex in save_obj_mesh function!" << endl;
-//                 system("pause");
-//             }else if (indexMap[vid0] == -1)
-//                 continue;
-//             it = indexMap.find(vid1);
-//             if (it == indexMap.end()) {
-//                 cerr << "Cannot find the vertex in save_obj_mesh function!" << endl;
-//                 system("pause");
-//             }else if (indexMap[vid1] == -1)
-//                 continue;
-//             it = indexMap.find(vid2);
-//             if (it == indexMap.end()) {
-//                 cerr << "Cannot find the vertex in save_obj_mesh function!" << endl;
-//                 system("pause");
-//             }else if (indexMap[vid2] == -1)
-//                 continue;
-
-//             int newvid0 = indexMap[vid0];
-//             int newvid1 = indexMap[vid1];
-//             int newvid2 = indexMap[vid2];
-//             fout << "f " << newvid0 << " " << newvid1 << " " << newvid2 << endl;
-//         }
-
-        
-//         fout.close();
-//     }   
-
-// }
 
 string vec2String(const RowVector3d& v){
 	ostringstream strs;

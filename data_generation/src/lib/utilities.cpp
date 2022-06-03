@@ -1,18 +1,8 @@
 #include "utilities.h"
-#include <igl/opengl/glfw/imgui/ImGuiMenu.h>
+// #include <igl/opengl/glfw/imgui/ImGuiMenu.h>
 #include <sstream>
 #include <map>
 
-void drawValueAtPpints(const MatrixXd& pts, const VectorXd& value, igl::opengl::glfw::Viewer& viewer){
-
-    assert(pts.rows() == value.rows());
-    for(int i = 0; i < pts.rows(); i++){
-        stringstream l1;
-        l1 << value(i);
-        viewer.data().add_label(Vector3d(pts.row(i)),l1.str());
-    }
-    
-}
 
 void computeBBox(string bboxObjName, VectorXd& bboxmin, VectorXd& bboxmax) {
   MatrixXd gV;

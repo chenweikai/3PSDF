@@ -1,18 +1,20 @@
 #pragma once
 
+#include <experimental/filesystem>
 #include <fstream>
 #include <map>
 #include <string>
 #include <utility>
 
+
 #include <Eigen/Core>
-#include <igl/opengl/glfw/Viewer.h>
 #include <igl/read_triangle_mesh.h>
 
 
 using namespace std;
 using namespace Eigen;
 
+namespace fs = std::experimental::filesystem;
 
 static bool comparePoint(const RowVector3d& p1, const RowVector3d& p2)
 {
@@ -42,7 +44,6 @@ static bool equalPoint(const RowVector3d& p1, const RowVector3d& p2)
 	return false;
 }
 
-void drawValueAtPpints(const MatrixXd& pts, const VectorXd& value, igl::opengl::glfw::Viewer& viewer);
 
 // remove those faces that have idential vertex ids
 void removeIdenticalVertices(const MatrixXi& F, MatrixXi& outF);

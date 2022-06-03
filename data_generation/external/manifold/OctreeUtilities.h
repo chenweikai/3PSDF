@@ -65,7 +65,6 @@ class Model_OBJ
   set<Octree*> BuildTreeGridPts(const MatrixXd& pts, vector<double>& outputSign);
   void ReconOnGridPts(const MatrixXd& pts);
   MatrixXd getCellCornerPts(const set<Octree*>& cells);
-  void displayCells(const vector<pair<Vector3d, Vector3d>>& cells, const MatrixXd& gridPts);
 
   void setBBox(const glm::dvec3& bmin, const glm::dvec3& bmax) {
     min_corner = bmin;

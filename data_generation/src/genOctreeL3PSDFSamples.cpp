@@ -16,7 +16,6 @@
 #include "computeLocal3PoleSDF.h"
 #include "utilities.h"
 #include "OctreeUtilities.h"
-#include "happly.h"
 
 using namespace std;
 using namespace Eigen;
@@ -127,27 +126,16 @@ void LocalizedMarchingCubes(
     }
     if (null_cell)
       continue;
-    // for debug only
-    // cout << "processing face " << i << " ... vert distances: ";
+
     MatrixXd points(8, 3);
     for (int j = 0; j < 8; j++) {
       local_dist(j) = distances[faces[i][j]];
-      // for debug only
-      // cout << local_dist(j) << " ";
       points.row(j) = verts[faces[i][j]].transpose();
     }
-    // for debug only
-    // cout << endl;
     MatrixXd part_verts;
     MatrixXi part_faces;
     local_dist = -1.0 * local_dist;
     igl::copyleft::marching_cubes(local_dist, cell_corners, 2, 2, 2, part_verts, part_faces);
-    // for debug only
-    string file_name = output_folder + "obj_" + to_string(i) + ".obj";
-    string ply_name = output_folder + "obj_" + to_string(i) + ".ply";
-    MatrixXi tmpF;
-    igl::writePLY(ply_name, points, tmpF);
-    save_obj_mesh(file_name, part_verts, part_faces);
 
     mesh_parts.push_back(make_pair(part_verts, part_faces));
   }
@@ -156,44 +144,6 @@ void LocalizedMarchingCubes(
   assembleMeshParts(mesh_parts, total_verts, total_faces);
   save_obj_mesh(output_obj_name, total_verts, total_faces);
   cout << "Finished writing the output sampling points into " << output_obj_name << "!" << endl;
-}
-
-void dump_points_to_ply(const vector<Vector3d>& points,
-                        const vector<double>& distances,
-                        std::string file_name) {
-  // Suppose these hold your data
-  std::vector<std::array<double, 3>> meshVertexPositions;
-  std::vector<std::array<double, 3>> meshVertexColors;
-  std::vector<std::vector<size_t>> meshFaceIndices;
-
-  // Create an empty object
-  happly::PLYData plyOut;
-
-  // add vertices
-  for (int i = 0; i < points.size(); i++) {
-    meshVertexPositions.push_back(std::array<double, 3>{points[i](0), points[i](1), points[i](2)});
-  }
-
-  // add vertex colors
-  for (int i = 0; i < distances.size(); i++) {
-    if (distances[i] > 0)
-      meshVertexColors.push_back(std::array<double, 3>{255, 0, 0});
-    else if (isnan(distances[i]))
-      meshVertexColors.push_back(std::array<double, 3>{0, 255, 0});
-    else
-      meshVertexColors.push_back(std::array<double, 3>{0, 0, 255});
-    // // for debug only
-    // if ( abs(points[i][1] - 0.961) < 1e-3 && distances[i] < 0)
-    //   cout << "Point: " << points[i][0] << ", " << points[i][1] << ", " << points[i][2] << endl;
-  }
-
-  // Add mesh data (elements are created automatically)
-  plyOut.addVertexPositions(meshVertexPositions);
-  plyOut.addVertexColors(meshVertexColors);
-  // plyOut.addFaceIndices(meshFaceIndices);
-
-  // Write the object to file
-  plyOut.write(file_name, happly::DataFormat::ASCII);
 }
 
 // Generate samples that are on the vertices of the octree
@@ -219,19 +169,16 @@ void GenerateOctVexSamples(
   auto start = std::chrono::high_resolution_clock::now();
   // compute octree cells
   Model_OBJ obj;
-  obj.Load(objName);
+  int sucess = obj.Load(objName);
+  if (sucess != 0) {
+    std::cout << "Failed to load the input mesh! Quit!" << std::endl;
+    exit(0);
+  }
   vector<pair<Vector3d, Vector3d>> cells;
   MatrixXd cellCornerPts;
   // uncommnet the following line if you are using a specified bounding box
-  // // bbox for QSpeed boy
-  // obj.setBBox(glm::dvec3(-2.2266, -0.1293, -1.6054), glm::dvec3(2.2266, 4.2087, 0.6892));
-  // bbox for normalized boy 112
   obj.setBBox(glm::dvec3(-0.65, -1, -0.16), glm::dvec3(0.65, 0.8, 0.16));
-  // bbox for QSpeed girl
-  // obj.setBBox(glm::dvec3(-1.97, -0.06, -1.55), glm::dvec3(1.94, 3.92, 0.74));
-  // bbox for shapenet car
-  // obj.setBBox(glm::dvec3(-0.5, -0.3641, -0.5), glm::dvec3(0.5, 0.3641, 0.5));
-  // obj.setBBox(glm::dvec3(-0.51, 0.8, -0.39), glm::dvec3(0.51, 3.1, 0.39));  // for shapenet car bin cls + regression
+
   cells = obj.getTreeCells(octreeDepth, cellCornerPts);
   cout << "cell number: " << cells.size() << endl;
 
@@ -255,14 +202,6 @@ void GenerateOctVexSamples(
   for (int i = 0; i < l3psdf_to_merge.size(); i++) {
     l3psdf_to_merge[i] = vector<double>(8, threshold - 1.0);  // one cell vertex is enclosed by at most 8 cells
   }
-
-  // // for debug only
-  // vector<Vector3d> points;
-  // points.push_back(Vector3d(0.0554625, 0.96096, 0.07395));
-  // vector<double> distances = computeT3PoleDistForPtsInCell(V, F, points, make_pair(Vector3d(0.45, 0.48, 0.6), Vector3d(0.9, 0.96, 1.2)), 0);
-  // for (auto d : distances)
-  //   cout << d << endl;
-  // dump_points_to_ply(points, distances, "../output/tmp.ply");
 
   #pragma omp parallel for
   for (int i = 0; i < octree_faces.size(); i++) {
@@ -376,7 +315,7 @@ void GenerateOctVexSamples(
   }
 
 
-  // output the 3D sampling points to PLY for debugging
+  // output the 3D sampling points to PLY
   if (flag_write_ply) {
     MatrixXd points = MatrixXd(octree_verts.size(), 3);
     for (int i = 0; i < octree_verts.size(); i++) {

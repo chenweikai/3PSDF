@@ -11,7 +11,9 @@ int Model_OBJ::Load(string filename)
     using namespace Eigen;
     using namespace std;
     // Load a mesh in OBJ format
-    igl::readOBJ(filename, V, F);
+    bool sucess = igl::readOBJ(filename, V, F);
+		if (!sucess)
+			return -1;
     fn = filename;
     // Make the example deterministic
     srand(0);
@@ -804,11 +806,6 @@ MatrixXd Model_OBJ::getCellCornerPts(const set<Octree*>& cells)
 		i++;
 	}	
 	return GV;
-}
-
-void Model_OBJ::displayCells(const vector<pair<Vector3d, Vector3d>>& cells, const MatrixXd& gridPts)
-{
-	tree->displayInputCells(cells, gridPts, V, F);
 }
 
 vector<pair<Vector3d, Vector3d>> Model_OBJ::getOccupiedCells(int resolution, MatrixXd& cellCornerPts)

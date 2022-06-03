@@ -20,22 +20,22 @@ endif()
 option(LIBIGL_SKIP_DOWNLOAD "Skip downloading external libraries" OFF)
 
 # Shortcut functions
-function(igl_download_project_aux name source)
-	if(NOT LIBIGL_SKIP_DOWNLOAD)
-		download_project(
-			PROJ         ${name}
-			SOURCE_DIR   "${source}"
-			DOWNLOAD_DIR "${LIBIGL_EXTERNAL}/.cache/${name}"
-			QUIET
-			${LIBIGL_EXTRA_OPTIONS}
-			${ARGN}
-		)
-	endif()
-endfunction()
+# function(igl_download_project_aux name source)
+# 	if(NOT LIBIGL_SKIP_DOWNLOAD)
+# 		download_project(
+# 			PROJ         ${name}
+# 			SOURCE_DIR   "${source}"
+# 			DOWNLOAD_DIR "${LIBIGL_EXTERNAL}/.cache/${name}"
+# 			QUIET
+# 			${LIBIGL_EXTRA_OPTIONS}
+# 			${ARGN}
+# 		)
+# 	endif()
+# endfunction()
 
-function(igl_download_project name)
-	igl_download_project_aux(${name} "${LIBIGL_EXTERNAL}/${name}" ${ARGN})
-endfunction()
+# function(igl_download_project name)
+# 	igl_download_project_aux(${name} "${LIBIGL_EXTERNAL}/${name}" ${ARGN})
+# endfunction()
 
 ################################################################################
 
@@ -83,21 +83,21 @@ function(igl_download_embree)
 endfunction()
 
 ## glad
-function(igl_download_glad)
-	igl_download_project(glad
-		GIT_REPOSITORY https://github.com/libigl/libigl-glad.git
-		GIT_TAG        09b4969c56779f7ddf8e6176ec1873184aec890f
-	)
-endfunction()
+# function(igl_download_glad)
+# 	igl_download_project(glad
+# 		GIT_REPOSITORY https://github.com/libigl/libigl-glad.git
+# 		GIT_TAG        09b4969c56779f7ddf8e6176ec1873184aec890f
+# 	)
+# endfunction()
 
 ## GLFW
-function(igl_download_glfw)
-	igl_download_project(glfw
-		GIT_REPOSITORY https://github.com/glfw/glfw.git
-		GIT_TAG        3.3
-		${LIBIGL_BRANCH_OPTIONS}
-	)
-endfunction()
+# function(igl_download_glfw)
+# 	igl_download_project(glfw
+# 		GIT_REPOSITORY https://github.com/glfw/glfw.git
+# 		GIT_TAG        3.3
+# 		${LIBIGL_BRANCH_OPTIONS}
+# 	)
+# endfunction()
 
 ## ImGui
 function(igl_download_imgui)
