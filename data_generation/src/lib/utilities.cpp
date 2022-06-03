@@ -5,7 +5,6 @@
 
 #include "utilities.h"
 
-
 void computeBBox(string bboxObjName, VectorXd& bboxmin, VectorXd& bboxmax) {
   MatrixXd gV;
   MatrixXi gF;
@@ -36,40 +35,35 @@ void removeIdenticalVertices(const MatrixXi& F, MatrixXi& outF) {
   }
 }
 
-void assembleMeshParts(const vector<pair<MatrixXd, MatrixXi>>& meshParts, MatrixXd& outV, MatrixXi& outF)
-{
-    // get total number of vertices and faces
-    int totalV = 0, totalF = 0;
-    for(auto i : meshParts)
-    {
-        const MatrixXd& V = i.first;
-        const MatrixXi& F = i.second;
-        totalV += V.rows();
-        totalF += F.rows();
-    }
+void assembleMeshParts(const vector<pair<MatrixXd, MatrixXi>>& meshParts, MatrixXd& outV, MatrixXi& outF) {
+  // get total number of vertices and faces
+  int totalV = 0, totalF = 0;
+  for(auto i : meshParts) {
+      const MatrixXd& V = i.first;
+      const MatrixXi& F = i.second;
+      totalV += V.rows();
+      totalF += F.rows();
+  }
 
-    outV = MatrixXd(totalV, 3);
-    outF = MatrixXi(totalF, 3);
-    // construct the output mesh
-    int Vcnt = 0, Fcnt = 0;
-    for(auto it : meshParts)
-    {
-        const MatrixXd& V = it.first;
-        const MatrixXi& F = it.second;
-        for (int i = 0; i < V.rows(); i++)
-        {
-            outV.row(Vcnt + i) = V.row(i);
-        }
-        for (int i=0; i < F.rows(); i++)
-        {
-            outF(Fcnt+i,0) = F(i,0) + Vcnt;
-            outF(Fcnt+i,1) = F(i,1) + Vcnt;
-            outF(Fcnt+i,2) = F(i,2) + Vcnt;
-        }
+  outV = MatrixXd(totalV, 3);
+  outF = MatrixXi(totalF, 3);
+  // construct the output mesh
+  int Vcnt = 0, Fcnt = 0;
+  for(auto it : meshParts) {
+      const MatrixXd& V = it.first;
+      const MatrixXi& F = it.second;
+      for (int i = 0; i < V.rows(); i++) {
+          outV.row(Vcnt + i) = V.row(i);
+      }
+      for (int i=0; i < F.rows(); i++) {
+          outF(Fcnt+i,0) = F(i,0) + Vcnt;
+          outF(Fcnt+i,1) = F(i,1) + Vcnt;
+          outF(Fcnt+i,2) = F(i,2) + Vcnt;
+      }
 
-        Vcnt += V.rows();
-        Fcnt += F.rows();
-    }
+      Vcnt += V.rows();
+      Fcnt += F.rows();
+  }
 }
 
 // customized mesh save function -- automatically remove NAN vertices

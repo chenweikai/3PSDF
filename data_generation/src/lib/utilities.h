@@ -6,10 +6,8 @@
 #include <string>
 #include <utility>
 
-
 #include <Eigen/Core>
 #include <igl/read_triangle_mesh.h>
-
 
 using namespace std;
 using namespace Eigen;
@@ -50,9 +48,7 @@ void removeIdenticalVertices(const MatrixXi& F, MatrixXi& outF);
 
 
 // customized mesh save function -- automatically remove NAN vertices
-void save_obj_mesh(string filename,
-                   const MatrixXd& verts,
-                   const MatrixXi& faces);
+void save_obj_mesh(string filename, const MatrixXd& verts, const MatrixXi& faces);
 
 void assembleMeshParts(const vector<pair<MatrixXd, MatrixXi>>& meshParts, MatrixXd& outV, MatrixXi& outF);
 
