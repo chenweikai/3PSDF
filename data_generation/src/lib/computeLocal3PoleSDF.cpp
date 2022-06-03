@@ -266,8 +266,8 @@ public:
 };
 
 void computeVert2FacesAndEdge2Faces(const MatrixXd& V, const MatrixXi& F,
-                                        map<pair<int, int>, vector<int>>& edge2Face,
-                                        map<int, vector<int>>& vert2Face)
+                                    map<pair<int, int>, vector<int>>& edge2Face,
+                                    map<int, vector<int>>& vert2Face)
 {
     for (int i=0; i < F.rows(); ++i)
     {
@@ -302,8 +302,8 @@ vector<double> computeT3PoleDistForPtsInCell(
   Vector3d cc = cell.first;
   Vector3d length = cell.second;
   vector<int> includedFaces;  // store all faces that intersect with the current cell
+
   // collect intersected face ids
-  // #pragma omp parallel for shared(count)
   for (int fid = 0; fid < faceNum; fid++) {
     float cellCenter[3] = {cc[0], cc[1], cc[2]};
     float halfSize[3] = {0.51 * length[0], 0.51 * length[1], 0.51 * length[2]};
@@ -315,16 +315,9 @@ vector<double> computeT3PoleDistForPtsInCell(
     if (triBoxOverlap(cellCenter, halfSize, triVerts)) {
       includedFaces.push_back(fid);
     }
-  }  // end for fid
+  }
 
   vector<double> gridDists; // output
-
-  // // for debug only
-  // if (cell_id == 855 || cell_id == 856 || cell_id == 859 || cell_id == 860) {
-  //   std::cout << "included faces: " << std::endl;
-  //   for (auto idx : includedFaces)
-  //     std::cout << idx << std::endl;
-  // }
 
   if (includedFaces.size() == 0) {
     for (int x = 0; x < pts.size(); x++) {
@@ -332,35 +325,27 @@ vector<double> computeT3PoleDistForPtsInCell(
     }
     return gridDists;
   }
-  // std::cout << "There are " << includedFaces.size() << " faces inside!" << std::endl;
-
 
   // reorder the included trianlge faces
   MatrixXi partF;
   MatrixXd partV;
   reOrderMeshIndices(V, F, includedFaces, partV, partF);
-  // igl::writeOBJ("../data/output.obj", partV, partF);
 
   // initialize PQP model
   PQP_Model* m_pqp_model = new PQP_Model();
   buildPQP(m_pqp_model, partV, partF); 
-
 
   map<pair<int, int>, vector<int>> part_edge2Face;
   map<int, vector<int>> part_vert2Face;
   computeVert2FacesAndEdge2Faces(partV, partF, part_edge2Face, part_vert2Face);
 
   MatrixXd face_normals; // per face normal
-  // MatrixXd part_Z;
-  // igl::writeOBJ("test.obj", partV, partF);
   igl::per_face_normals(partV, partF, Vector3d(1,1,1).normalized(), face_normals);
 
   // iterate over cell corners - compute its distance to the included faces
   // #pragma omp parallel for
-  for (int k = 0; k < pts.size(); k++) {    
+  for (int k = 0; k < pts.size(); k++) {
     const Vector3d& pnt = pts[k];
-    // std::cout << pnt[0] << " " << pnt[1] << " " << pnt[2] << std::endl;
-
     Vector3d nearestPnt;
     int closestTriID;
     double dist = PQPABSDist(m_pqp_model, pnt, nearestPnt, closestTriID);
@@ -368,7 +353,6 @@ vector<double> computeT3PoleDistForPtsInCell(
     Vector3d dir_org = pnt - nearestPnt;
     Vector3d dir = dir_org.normalized();
 
-    // double p2pdist = dir_org.norm();
     if (dist < 1e-10 || isnan(dir[0])) {
       dist = 0.0;
       gridDists.push_back(dist);
