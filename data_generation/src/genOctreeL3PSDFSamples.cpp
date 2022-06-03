@@ -143,7 +143,7 @@ void LocalizedMarchingCubes(
   MatrixXi total_faces;
   assembleMeshParts(mesh_parts, total_verts, total_faces);
   save_obj_mesh(output_obj_name, total_verts, total_faces);
-  std::cout << "Finished writing the output sampling points into " << output_obj_name << "!" << std::endl;
+  std::cout << "Finished writing the reconstructed mesh into " << output_obj_name << "!" << std::endl;
 }
 
 // Generate samples that are on the vertices of the octree
@@ -177,7 +177,7 @@ void GenerateOctVexSamples(
   vector<pair<Vector3d, Vector3d>> cells;
   MatrixXd cellCornerPts;
   // uncommnet the following line if you are using a specified bounding box
-  obj.setBBox(glm::dvec3(-0.65, -1, -0.16), glm::dvec3(0.65, 0.8, 0.16));
+  // obj.setBBox(glm::dvec3(-0.65, -1, -0.16), glm::dvec3(0.65, 0.8, 0.16));
 
   cells = obj.getTreeCells(octreeDepth, cellCornerPts);
   std::cout << "cell number: " << cells.size() << std::endl;

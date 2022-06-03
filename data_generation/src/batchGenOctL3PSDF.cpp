@@ -3,24 +3,23 @@
     Only performed on original mesh
 */
 
-#include <iostream>
+#include <experimental/filesystem>
 #include <fstream>
-#include <vector>
+#include <iostream>
 #include <string>
 #include <stdlib.h> 
 #include <stdio.h> 
 #include <sstream>
-#include <experimental/filesystem>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <fstream>
+#include <vector>
+
+
 using namespace std;
 
 namespace fs = std::experimental::filesystem;
 
-
-
-vector<string> loadNames(string fileName){
+std::vector<string> loadNames(string fileName){
     ifstream fin(fileName);
     if (!fin.is_open())
         std::cout << "Cannot open " << fileName << "!" << std::endl;
@@ -28,7 +27,7 @@ vector<string> loadNames(string fileName){
     int num;
     fin >> num;
     string name;
-    vector<string> outputNames;
+    std::vector<string> outputNames;
     while (fin >> name)
     {
         outputNames.push_back(name);
@@ -40,7 +39,6 @@ vector<string> loadNames(string fileName){
 
 int main(int argc, char** argv){
 
-  // string dataDir = "/home/weikai/data/arthub/corrected_3Views_and_mesh/OBJ/girl";
   string dataDir = "/cfs-cq-dcc/weikaichen/3DReconData/OBJ/boy";
   string outSDFDir = "/cfs-cq-dcc/weikaichen/3DReconData/SDF_raw/boy/coat_and_tshirt_depth10";
   string outObjDir = "/cfs-cq-dcc/weikaichen/3DReconData/ReconObj/boy_depth10";
@@ -78,7 +76,7 @@ int main(int argc, char** argv){
           sscanf(argv[i], "%d", &writePLY);
   }
 
-  vector<int> todoList;
+  std::vector<int> todoList;
   ifstream fin;
   fin.open(todo_filename);
   int a;

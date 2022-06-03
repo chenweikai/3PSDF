@@ -733,8 +733,8 @@ vector<double> computeT3PoleDistForPtsInCell(
               vid = vid1;
           if (abs(c-1.0) < eps)
               vid = vid2;
-          // prod = getMaxAngleViaVertConnection(vid, dir, face_normals, part_vert2Face);
-          prod = computeSignViaPseudonormal(vid, V, F, dir, face_normals, part_vert2Face);
+          prod = getMaxAngleViaVertConnection(vid, dir, face_normals, part_vert2Face);
+          // prod = computeSignViaPseudonormal(vid, V, F, dir, face_normals, part_vert2Face);
         }else {
           prod = getMaxAngleViaEdgeConnection(a, b, c, closestTriID, dir, partF, face_normals, part_edge2Face);
         }
