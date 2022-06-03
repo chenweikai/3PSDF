@@ -70,8 +70,7 @@ double computeSignViaPseudonormal(
         map<int, vector<int>>& vert2Face) {
   auto iter = vert2Face.find(vertID);
   if (iter == vert2Face.end()) {
-      system("pause");
-      cout << "The vertex is not found in function verifyAngleViaVertConnection!" << endl;
+      std::cout << "The vertex is not found in function verifyAngleViaVertConnection!" << std::endl;
   }
 
   vector<int> faces = vert2Face[vertID];
@@ -98,21 +97,21 @@ double computeSignViaPseudonormal(
     }
     RowVector3d edge0 = all_verts.row(v0) - all_verts.row(vertID);
     RowVector3d edge1 = all_verts.row(v1) - all_verts.row(vertID);
-    // cout << "before normalization: edge0: " << endl << edge0 << endl << " edge1: " << endl << edge1 << endl;
+    // std::cout << "before normalization: edge0: " << std::endl << edge0 << std::endl << " edge1: " << std::endl << edge1 << std::endl;
     edge0.normalize();
     edge1.normalize();
-    // cout << "after normalization: edge0: " << endl << edge0 << endl << " edge1: " << endl << edge1 << endl;
+    // std::cout << "after normalization: edge0: " << std::endl << edge0 << std::endl << " edge1: " << std::endl << edge1 << std::endl;
     double dot_p = edge0.dot(edge1);
     double angle = acos(dot_p);
     RowVector3d n = face_normals.row(i->first);
     sumNormal += angle * n;
-    // cout << "dot p: " << dot_p << endl << "angle: " << angle << endl << "sumNormal: " << sumNormal << endl;
+    // std::cout << "dot p: " << dot_p << std::endl << "angle: " << angle << std::endl << "sumNormal: " << sumNormal << std::endl;
   }
 
   sumNormal.normalize();
-  // cout << "normalized sum normal: " << sumNormal << endl;
+  // std::cout << "normalized sum normal: " << sumNormal << std::endl;
   double sign = sumNormal.dot(dir);
-  // cout << "dir : " << dir << endl << "sign: " << sign << endl;
+  // std::cout << "dir : " << dir << std::endl << "sign: " << sign << std::endl;
   return sign;
 }
 
@@ -126,8 +125,7 @@ double getMaxAngleViaVertConnection(
     auto iter = vert2Face.find(vertID);
     if (iter == vert2Face.end())
     {
-        system("pause");
-        cout << "The vertex is not found in function verifyAngleViaVertConnection!" << endl;
+        std::cout << "The vertex is not found in function verifyAngleViaVertConnection!" << std::endl;
     }
 
     vector<int> faces = vert2Face[vertID];
@@ -172,8 +170,7 @@ double getMaxAngleViaEdgeConnection(const float& a, const float& b, const float&
         auto itr = edge2Face.find(e);
         if (itr == edge2Face.end())
         {
-            system("pause");
-            cout << "The edge is not found in function getMaxAngleViaEdgeConnection!" << endl;
+            std::cout << "The edge is not found in function getMaxAngleViaEdgeConnection!" << std::endl;
         }
         vector<int> faces = itr->second;
         for(auto f : faces)
@@ -188,8 +185,7 @@ double getMaxAngleViaEdgeConnection(const float& a, const float& b, const float&
         auto itr = edge2Face.find(e);
         if (itr == edge2Face.end())
         {
-            system("pause");
-            cout << "The edge is not found in function getMaxAngleViaEdgeConnection!" << endl;
+            std::cout << "The edge is not found in function getMaxAngleViaEdgeConnection!" << std::endl;
         }
         vector<int> faces = itr->second;
         for(auto f : faces)
@@ -203,8 +199,7 @@ double getMaxAngleViaEdgeConnection(const float& a, const float& b, const float&
         auto itr = edge2Face.find(e);
         if (itr == edge2Face.end())
         {
-            system("pause");
-            cout << "The edge is not found in function getMaxAngleViaEdgeConnection!" << endl;
+            std::cout << "The edge is not found in function getMaxAngleViaEdgeConnection!" << std::endl;
         }
         vector<int> faces = itr->second;
         for(auto f : faces)
@@ -239,7 +234,7 @@ void reOrderMeshIndices(const MatrixXd& allV, const MatrixXi& allF, const vector
         old2New[allF(fid,1)] = -1;
         old2New[allF(fid,2)] = -1;
     }
-    // cout << "New mesh includes: " << old2New.size() << " vertices." << endl;
+    // std::cout << "New mesh includes: " << old2New.size() << " vertices." << std::endl;
     // only keep selected vertices and update vertex index
     outV = MatrixXd(old2New.size(), 3);
     int cnt = 0;
@@ -310,7 +305,7 @@ void addItem(
   for (int x = 0; x < 2; x++) {
     for (int y = 0; y < 2; y++) {
       for (int z = 0; z < 2; z++) {
-        // cout << "cnt: " << cnt << endl << "distances: " << endl << distances[cnt] << endl;
+        // std::cout << "cnt: " << cnt << std::endl << "distances: " << std::endl << distances[cnt] << std::endl;
         int pos = 0;
         while (pos < gridDists[0].size()) {
           // for each inner grid point, it should be enclosed by 8 cells
@@ -344,7 +339,7 @@ void addItem(
   for (int x = 0; x < 2; x++) {
     for (int y = 0; y < 2; y++) {
       for (int z = 0; z < 2; z++) {
-        // cout << "cnt: " << cnt << endl << "distances: " << endl << distances[cnt] << endl;
+        // std::cout << "cnt: " << cnt << std::endl << "distances: " << std::endl << distances[cnt] << std::endl;
         int pos = 0;
         while (pos < gridDists[0].size()) {
           // if the current values haven't been filled (it is not NAN and not the initial value), 
@@ -372,14 +367,14 @@ void generateRegularSamplesinBBox(
   MatrixXd& samplePoints,         // output regular sampling points
   VectorXd& distPerPoint          // output local 3PSD for each point
 ) {
-  // cout << "Creating grid ... ";
-  // cout << "bbmin: " << bmin[0] << ", " << bmin[1] << ", " << bmin[2] << endl;
-	// cout << "Grid resolution: " << grid_size[0] << " " << grid_size[1] << " " << grid_size[2] << endl;
-  // cout << "Grid minimum width: " << min_grid_width << endl;
+  // std::cout << "Creating grid ... ";
+  // std::cout << "bbmin: " << bmin[0] << ", " << bmin[1] << ", " << bmin[2] << std::endl;
+	// std::cout << "Grid resolution: " << grid_size[0] << " " << grid_size[1] << " " << grid_size[2] << std::endl;
+  // std::cout << "Grid minimum width: " << min_grid_width << std::endl;
 	MatrixXd GV(grid_size[0]*grid_size[1]*grid_size[2], 3);	    // GV to store grid query points
 	VectorXd finalS(grid_size[0]*grid_size[1]*grid_size[2], 1);  // final vector to stored computed distance values
 
-  cout << "Before initializing GV" << endl;
+  std::cout << "Before initializing GV" << std::endl;
   for(int x = 0; x< grid_size[0]; x++) {
     const double xi = x * min_grid_width + bmin(0);
     for(int y = 0; y < grid_size[1]; y++) {
@@ -392,10 +387,10 @@ void generateRegularSamplesinBBox(
   }
 
   RowVector3d tmp(1.0, 1.0, 1.0);
-  cout << "size of RowVector3d: " << sizeof(RowVector3d) << " total size: " << tmp * grid_size[0] * grid_size[1] * grid_size[2] << endl;
-  cout << "Done initial GV!" << endl;
+  std::cout << "size of RowVector3d: " << sizeof(RowVector3d) << " total size: " << tmp * grid_size[0] * grid_size[1] * grid_size[2] << std::endl;
+  std::cout << "Done initial GV!" << std::endl;
 
-  cout << "Computing 3-pole distance field ..." << endl;
+  std::cout << "Computing 3-pole distance field ..." << std::endl;
   auto start = high_resolution_clock::now();
   int w = grid_size(0) - 1;
   int h = grid_size(1) - 1;
@@ -409,7 +404,7 @@ void generateRegularSamplesinBBox(
   for (int i = 0; i < gridVec.size(); i++) {
     gridVec[i] = vector<double>(8, threshold - 1.0);
   }
-  cout << " Done initial gridVec!" << endl;
+  std::cout << " Done initial gridVec!" << std::endl;
 
   // try to compute in batches
   // int totalRes = w * h * d;
@@ -417,7 +412,7 @@ void generateRegularSamplesinBBox(
   // int num_batch = totalRes / min_batch_size;
   // int step_w_size = w / num_batch;
   // if (step_w_size == 0) step_w_size = 1;
-  // cout << "There are " << num_batch << " batches!" << " step_w_size: " << step_w_size << endl;
+  // std::cout << "There are " << num_batch << " batches!" << " step_w_size: " << step_w_size << std::endl;
   // int start_num = 0;
   // int stop_num = 0;
 
@@ -427,7 +422,7 @@ void generateRegularSamplesinBBox(
   //     stop_num = w;
   //   if (start_num >= stop_num)
   //     break;
-  //   cout << "start num: " << start_num << " stop num: " << stop_num << endl;
+  //   std::cout << "start num: " << start_num << " stop num: " << stop_num << std::endl;
   //   for (int i = start_num; i < stop_num; i++) {
   //     #pragma omp parallel for
   //     for (int j = 0; j < h; j++) {
@@ -455,7 +450,7 @@ void generateRegularSamplesinBBox(
                   bmin(2) + k * min_grid_width);
               Vector3d pnt = base + Vector3d(x * min_grid_width, y * min_grid_width, z * min_grid_width);
               queryPnts.push_back(pnt);
-              // cout << "pnt : "  << pnt[0] << ", " << pnt[1] << ", " << pnt[2] << endl;   
+              // std::cout << "pnt : "  << pnt[0] << ", " << pnt[1] << ", " << pnt[2] << std::endl;   
             }
           }
         }
@@ -468,8 +463,8 @@ void generateRegularSamplesinBBox(
         cell.first = cellCenter;
         cell.second = length;
 
-        // cout << "cell center: " << cellCenter[0] << ", " << cellCenter[1] << ", " << cellCenter[2]
-        //   << " length: " << length << endl;
+        // std::cout << "cell center: " << cellCenter[0] << ", " << cellCenter[1] << ", " << cellCenter[2]
+        //   << " length: " << length << std::endl;
 
         vector<double> distances = computeT3PoleDistForPtsInCell(V, F, queryPnts, cell, 0);
         int cnt = 0;        
@@ -478,7 +473,7 @@ void generateRegularSamplesinBBox(
     }  // end for j
   }  // end for i
 
-  // cout << "start merging result!" << endl;
+  // std::cout << "start merging result!" << std::endl;
   for (int i = 0; i < gridVec.size(); i++) {
     const vector<double>& dists = gridVec[i];
     double sum = 0.0;
@@ -509,22 +504,22 @@ void generateRegularSamplesinBBox(
   for (int i = 0; i < grid_size[0]; i++) {
     for (int j = 0; j < grid_size[1]; j++) {
       for (int k = 0; k < grid_size[2]; k++) {
-        // cout << "grid " << i << " " << j << " " << k << ": " << endl;
+        // std::cout << "grid " << i << " " << j << " " << k << ": " << std::endl;
         int global_grid_pos = i + grid_size(0) * (j + grid_size(1) * k);
         vector<double> vec = gridVec[global_grid_pos];
         int validCnt = 0;
         for (int j = 0; j < vec.size(); j++) {
-          // cout << vec[j] << " ";
+          // std::cout << vec[j] << " ";
           if (isnan(vec[i]) || vec[j] > threshold)
             validCnt++;
         }
         stats[validCnt]++;
-        // cout << endl;
+        // std::cout << std::endl;
       }
     }
   }
   for (auto iter = stats.begin(); iter != stats.end(); iter++) {
-    cout << iter->first << ": " << iter->second << endl;
+    std::cout << iter->first << ": " << iter->second << std::endl;
   }
  
 }
@@ -538,10 +533,10 @@ vector<vector<double>> generateRegularSamplesinBBox(
   double threshold,                // threshold for determining if the grid value is computed
   int idx_z
 ) {
-  // cout << "Creating grid ... ";
-  // cout << "bbmin: " << bmin[0] << ", " << bmin[1] << ", " << bmin[2] << endl;
-	// cout << "Grid resolution: " << grid_size[0] << " " << grid_size[1] << " " << grid_size[2] << endl;
-  // cout << "Grid minimum width: " << min_grid_width << endl;
+  // std::cout << "Creating grid ... ";
+  // std::cout << "bbmin: " << bmin[0] << ", " << bmin[1] << ", " << bmin[2] << std::endl;
+	// std::cout << "Grid resolution: " << grid_size[0] << " " << grid_size[1] << " " << grid_size[2] << std::endl;
+  // std::cout << "Grid minimum width: " << min_grid_width << std::endl;
 	MatrixXd GV(grid_size[0]*grid_size[1]*grid_size[2], 3);	    // GV to store grid query points
 	VectorXd finalS(grid_size[0]*grid_size[1]*grid_size[2], 1);  // final vector to stored computed distance values
 
@@ -555,8 +550,8 @@ vector<vector<double>> generateRegularSamplesinBBox(
       }
     }
   }
-  // cout << endl << endl;
-  // cout << "Computing 3-pole distance field ..." << endl;
+  // std::cout << std::endl << std::endl;
+  // std::cout << "Computing 3-pole distance field ..." << std::endl;
   auto start = high_resolution_clock::now();
   int w = grid_size(0) - 1;
   int h = grid_size(1) - 1;
@@ -585,7 +580,7 @@ vector<vector<double>> generateRegularSamplesinBBox(
                   bmin(2) + k * min_grid_width);
               Vector3d pnt = base + Vector3d(x * min_grid_width, y * min_grid_width, z * min_grid_width);
               queryPnts.push_back(pnt);
-              // cout << "pnt : "  << pnt[0] << ", " << pnt[1] << ", " << pnt[2] << endl;   
+              // std::cout << "pnt : "  << pnt[0] << ", " << pnt[1] << ", " << pnt[2] << std::endl;   
             }
           }
         }
@@ -600,9 +595,9 @@ vector<vector<double>> generateRegularSamplesinBBox(
 
         vector<double> distances = computeT3PoleDistForPtsInCell(V, F, queryPnts, cell, 0);
         if (queryPnts.size() != distances.size())
-          cout << "ERROR! Returned distance size is not equal to that of query points!" << endl;
+          std::cout << "ERROR! Returned distance size is not equal to that of query points!" << std::endl;
         if (distances.size() != 8)
-          cout << "Error! Returned distance size is not equal to 8!" << endl;
+          std::cout << "Error! Returned distance size is not equal to 8!" << std::endl;
         int cnt = 0;
         addItem(gridVec, grid_size, distances, i, j, k, cnt, threshold);
       }  // end for k
@@ -614,9 +609,9 @@ vector<vector<double>> generateRegularSamplesinBBox(
   // for (int i = 0; i < gridVec.size(); i++) {
   //   vector<double> vec = gridVec[i];
   //   for (int j = 0; j < vec.size(); j++)
-  //     cout << vec[j] << " ";
+  //     std::cout << vec[j] << " ";
     
-  //   cout << endl;
+  //   std::cout << std::endl;
   // }
 
   return gridVec;
@@ -652,9 +647,9 @@ vector<double> computeT3PoleDistForPtsInCell(
 
   // // for debug only
   // if (cell_id == 855 || cell_id == 856 || cell_id == 859 || cell_id == 860) {
-  //   cout << "included faces: " << endl;
+  //   std::cout << "included faces: " << std::endl;
   //   for (auto idx : includedFaces)
-  //     cout << idx << endl;
+  //     std::cout << idx << std::endl;
   // }
 
   if (includedFaces.size() == 0) {
@@ -663,7 +658,7 @@ vector<double> computeT3PoleDistForPtsInCell(
     }
     return gridDists;
   }
-  // cout << "There are " << includedFaces.size() << " faces inside!" << endl;
+  // std::cout << "There are " << includedFaces.size() << " faces inside!" << std::endl;
 
 
   // reorder the included trianlge faces
@@ -690,7 +685,7 @@ vector<double> computeT3PoleDistForPtsInCell(
   // #pragma omp parallel for
   for (int k = 0; k < pts.size(); k++) {    
     const Vector3d& pnt = pts[k];
-    // cout << pnt[0] << " " << pnt[1] << " " << pnt[2] << endl;
+    // std::cout << pnt[0] << " " << pnt[1] << " " << pnt[2] << std::endl;
 
     Vector3d nearestPnt;
     int closestTriID;
@@ -757,7 +752,7 @@ vector<double> computeT3PoleDistForPtsInCell(
         gridDists.push_back(newDist);
       } else {
         // do not lie on the edge and the angle is not smaller than 90 degree
-        // cout << "sounds like impossible case just happened!" << endl;
+        // std::cout << "sounds like impossible case just happened!" << std::endl;
         gridDists.push_back(dist);
       }
     }
@@ -774,10 +769,10 @@ void generateThin3PoleSDF(string meshFileName,
   // load obj mesh
   Eigen::MatrixXd V;
   Eigen::MatrixXi F;
-  cout << "Loading " << meshFileName << endl;
+  std::cout << "Loading " << meshFileName << std::endl;
 	// Read in inputs as double precision floating point meshes
   igl::readOBJ(meshFileName,V,F);
-	cout << "Mesh load done!" << endl;
+	std::cout << "Mesh load done!" << std::endl;
 
   MatrixXi newF;
   removeIdenticalVertices(F, newF);
@@ -806,22 +801,22 @@ void generateThin3PoleSDF(string meshFileName,
 	RowVector3d bmin = center + 1.05 * (tightBmin - center);
 	RowVector3d bmax = center + 1.05 * (tightBmax - center);
 	RowVector3d bboxSize = bmax - bmin;
-	cout << "Bounding corners - min: " << vec2String(bmin) << " max: " << vec2String(bmax) << endl;
+	std::cout << "Bounding corners - min: " << vec2String(bmin) << " max: " << vec2String(bmax) << std::endl;
 
 	// number of vertices on the largest side
 	const int s = resolution;
 	const double minGridWidth = (bmax-bmin).maxCoeff()/(double)s;
 	RowVector3i gridSize = ( s * ((bmax-bmin) / (bmax-bmin).maxCoeff()) ).cast<int>();
   gridSize += RowVector3i(1, 1, 1);
-	cout << "Grid resolution: " << gridSize[0] << " " << gridSize[1] << " " << gridSize[2] << endl;
-  cout << "Grid minimum width: " << minGridWidth << endl;
+	std::cout << "Grid resolution: " << gridSize[0] << " " << gridSize[1] << " " << gridSize[2] << std::endl;
+  std::cout << "Grid minimum width: " << minGridWidth << std::endl;
 
 	
-	cout << "Creating grid ... ";
+	std::cout << "Creating grid ... ";
 	MatrixXd GV(gridSize(0)*gridSize(1)*gridSize(2), 3);	// GV to store grid query points
 	VectorXd finalS(gridSize[0]*gridSize[1]*gridSize[2], 1); // final vector to stored computed distance values
   finalS.fill(-1.0);
-	cout << " Done " << endl;
+	std::cout << " Done " << std::endl;
 
 	const auto lerp = [&](const int di, const int d)->double
 	{return bmin(d)+(double)di/(double)(gridSize(d)-1)*(bmax(d)-bmin(d));};
@@ -842,14 +837,14 @@ void generateThin3PoleSDF(string meshFileName,
   /********************************************************************************************
    * Compute 3-pole distance field
   *********************************************************************************************/
-  cout << "Computing 3-pole distance field ..." << endl;
+  std::cout << "Computing 3-pole distance field ..." << std::endl;
   auto start = high_resolution_clock::now();
   int maxBufferSize = 2; // buffer size of stored closest distItems; should be at least 2!!
 
   // int totalNum = gridSize(0)*gridSize(1)*gridSize(2);
   // int batchNum = ceil(double(totalNum) / double(batchSize));
-  // cout << "Total points: " << totalNum << " Batch size: " << batchSize << endl;
-  // cout << "There will be " << batchNum << " batches in total!" << endl;
+  // std::cout << "Total points: " << totalNum << " Batch size: " << batchSize << std::endl;
+  // std::cout << "There will be " << batchNum << " batches in total!" << std::endl;
 
   int w = gridSize(0) - 1;
   int h = gridSize(1) - 1;
@@ -939,7 +934,7 @@ void generateThin3PoleSDF(string meshFileName,
                     bmin[1] + j * minGridWidth,
                     bmin[2] + k * minGridWidth);
                 Vector3d pnt = base + Vector3d(x * minGridWidth, y * minGridWidth, z * minGridWidth);
-                // cout << pnt[0] << " " << pnt[1] << " " << pnt[2] << endl;
+                // std::cout << pnt[0] << " " << pnt[1] << " " << pnt[2] << std::endl;
                 queryPnts.push_back(pnt);
 
                 // Vector3d nearestPnt;
@@ -1006,7 +1001,7 @@ void generateThin3PoleSDF(string meshFileName,
                 //     gridDists[ (i + x) + gridSize(0) * (j + y + gridSize(1) * (k + z))].push_back(newDist);
                 //   } else {
                 //     // do not lie on the edge and the angle is not smaller than 90 degree
-                //     cout << "sounds like impossible case just happened!" << endl;
+                //     std::cout << "sounds like impossible case just happened!" << std::endl;
                 //     gridDists[ (i + x) + gridSize(0) * (j + y + gridSize(1) * (k + z))].push_back(dist);
                 //   }
                 // }
@@ -1022,15 +1017,15 @@ void generateThin3PoleSDF(string meshFileName,
           pair<Vector3d, Vector3d> cell;
           cell.first = cellCenter;
           cell.second = length;
-          // cout << "i: " << i << " j: " << j << " k: " << k << endl;
-          // cout << "cell.first: " << cell.first << " " << " length: " << cell.second << endl;
-          // cout << "query point: " << queryPnts << endl;
+          // std::cout << "i: " << i << " j: " << j << " k: " << k << std::endl;
+          // std::cout << "cell.first: " << cell.first << " " << " length: " << cell.second << std::endl;
+          // std::cout << "query point: " << queryPnts << std::endl;
           vector<double> distances = computeT3PoleDistForPtsInCell(V, F, queryPnts, cell, 0);
           int cnt = 0;
           for (int x = 0; x < 2; x++) {
             for (int y = 0; y < 2; y++) {
               for (int z = 0; z < 2; z++) {
-                // cout << "cnt: " << cnt << endl << "distances: " << endl << distances[cnt] << endl;
+                // std::cout << "cnt: " << cnt << std::endl << "distances: " << std::endl << distances[cnt] << std::endl;
                 gridDists[ (i + x) + gridSize(0) * (j + y + gridSize(1) * (k + z))].push_back(distances[cnt]);
                 cnt++;
               }
@@ -1069,12 +1064,12 @@ void generateThin3PoleSDF(string meshFileName,
     
 	auto stop = high_resolution_clock::now(); 
 	auto duration = duration_cast<microseconds>(stop - start); 
-	cout << "Computation time: " << duration.count() / double(1000000.0) << " seconds" << endl;	
+	std::cout << "Computation time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;	
 
 
     /************* Reconstruction ****************/
 	// use marching cube to reconstruct
-	cout << " Marching cubes ... " << endl;
+	std::cout << " Marching cubes ... " << std::endl;
 	start = high_resolution_clock::now();
 
 	MatrixXd SV;
@@ -1083,13 +1078,13 @@ void generateThin3PoleSDF(string meshFileName,
 
 	stop = high_resolution_clock::now();
 	duration = duration_cast<microseconds>(stop - start); 
-	cout << "Marching Cube Used time: " << duration.count() / double(1000000.0) << " seconds" << endl;
+	std::cout << "Marching Cube Used time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;
 
     
 	// save the reconstructed mesh
 	save_obj_mesh(outReconMeshName, SV, SF);
-    cout << "there are " << SV.rows() << " vertices and " << SF.rows() << " faces!" << endl;
-	cout << "Finished writing reconstruction to " << outReconMeshName << "!" << endl;   
+    std::cout << "there are " << SV.rows() << " vertices and " << SF.rows() << " faces!" << std::endl;
+	std::cout << "Finished writing reconstruction to " << outReconMeshName << "!" << std::endl;   
 }
                     
 

@@ -10,7 +10,7 @@ void buildPQP(PQP_Model* ptr, string objName)
 	MatrixXi F;
 	igl::read_triangle_mesh(objName, V, F);
 	PQP_REAL p1[3], p2[3], p3[3];
-	cout << "Building Model for mesh " << objName << " ...";
+	std::cout << "Building Model for mesh " << objName << " ...";
 	int numF = F.rows();
 	for (int i = 0; i < numF; i++)
 	{
@@ -30,14 +30,14 @@ void buildPQP(PQP_Model* ptr, string objName)
 		ptr->AddTri(p1, p2, p3, i);
 	}
 	ptr->EndModel();
-	cout << " Done." << endl;
+	std::cout << " Done." << std::endl;
 }
 
 void buildPQP(PQP_Model* ptr, const MatrixXd& V, const MatrixXi& F)
 {
 	ptr->BeginModel();
 	PQP_REAL p1[3], p2[3], p3[3];
-	// cout << "Building Model for mesh subset ... ";
+	// std::cout << "Building Model for mesh subset ... ";
 	
 	for (int i = 0; i < F.rows(); i++)
 	{
@@ -57,7 +57,7 @@ void buildPQP(PQP_Model* ptr, const MatrixXd& V, const MatrixXi& F)
 		ptr->AddTri(p1, p2, p3, i);
 	}
 	ptr->EndModel();
-	// cout << " Done." << endl;
+	// std::cout << " Done." << std::endl;
 }
 
 // initialize PQP query model
@@ -66,7 +66,7 @@ void buildPQP(PQP_Model* ptr, const MatrixXd& V, const MatrixXi& F)
 //     m_pqp_model = new PQP_Model();
 // 	m_pqp_model->BeginModel();
 // 	PQP_REAL p1[3], p2[3], p3[3];
-// 	cout << "Building PQP Model ...";
+// 	std::cout << "Building PQP Model ...";
 // 	int numF = F.rows();
 // 	for (int i = 0; i < numF; i++)
 // 	{
@@ -86,7 +86,7 @@ void buildPQP(PQP_Model* ptr, const MatrixXd& V, const MatrixXi& F)
 // 		m_pqp_model->AddTri(p1, p2, p3, i);
 // 	}
 // 	m_pqp_model->EndModel();
-// 	cout << " Done." << endl;
+// 	std::cout << " Done." << std::endl;
 // }
 
 // return the unsigned distance from a 3D point to the mesh (PQP model required to be built first)

@@ -143,7 +143,7 @@ void LocalizedMarchingCubes(
   MatrixXi total_faces;
   assembleMeshParts(mesh_parts, total_verts, total_faces);
   save_obj_mesh(output_obj_name, total_verts, total_faces);
-  cout << "Finished writing the output sampling points into " << output_obj_name << "!" << endl;
+  std::cout << "Finished writing the output sampling points into " << output_obj_name << "!" << std::endl;
 }
 
 // Generate samples that are on the vertices of the octree
@@ -180,7 +180,7 @@ void GenerateOctVexSamples(
   obj.setBBox(glm::dvec3(-0.65, -1, -0.16), glm::dvec3(0.65, 0.8, 0.16));
 
   cells = obj.getTreeCells(octreeDepth, cellCornerPts);
-  cout << "cell number: " << cells.size() << endl;
+  std::cout << "cell number: " << cells.size() << std::endl;
 
   // extract vertices, faces and vert-to-face mapping from octree cells
   vector<Vector3d> octree_verts;
@@ -266,10 +266,10 @@ void GenerateOctVexSamples(
 
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); 
-	cout << "Computing L3PSDF at depth " << octreeDepth << " Used time: " << duration.count() / double(1000000.0) << " seconds" << endl;
+	std::cout << "Computing L3PSDF at depth " << octreeDepth << " Used time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;
 
-  cout << "number of inside : outside : nan = " << inside_cnt << " ： " << outside_cnt << " : " << nan_cnt << endl;
-  cout << "ratio of inside : outside : nan = " << 1.0 << " ： " << double(outside_cnt) / inside_cnt << " : " << double(nan_cnt) / inside_cnt << endl;
+  std::cout << "number of inside : outside : nan = " << inside_cnt << " ： " << outside_cnt << " : " << nan_cnt << std::endl;
+  std::cout << "ratio of inside : outside : nan = " << 1.0 << " ： " << double(outside_cnt) / inside_cnt << " : " << double(nan_cnt) / inside_cnt << std::endl;
 
   if (flag_recon_obj) {
     // truncated L3PSDF
@@ -291,7 +291,7 @@ void GenerateOctVexSamples(
     // MatrixXd GV(grid_size[0]*grid_size[1]*grid_size[2], 3);	    // GV to store grid query points
     // VectorXd finalS(grid_size[0]*grid_size[1]*grid_size[2], 1);  // final vector to stored computed distance values
 
-    // cout << "Before initializing GV" << endl;
+    // std::cout << "Before initializing GV" << std::endl;
     // for(int x = 0; x< grid_size[0]; x++) {
     //   const double xi = x * min_grid_width + bmin(0);
     //   for(int y = 0; y < grid_size[1]; y++) {
@@ -323,13 +323,13 @@ void GenerateOctVexSamples(
     }
     MatrixXi tmpF;
     igl::writePLY(output_pts_name, points, tmpF);
-    cout << "Finished writing the output sampling points into " << output_pts_name << "!" << endl;
+    std::cout << "Finished writing the output sampling points into " << output_pts_name << "!" << std::endl;
   }
 
   if (flag_write_sdf) {
     // write into txt format
     ofstream fout(outSDFName);
-    fout << final_dist.size() << endl;
+    fout << final_dist.size() << std::endl;
     for(int i=0; i < final_dist.size(); ++i) {
       int label = 1;  // outside
       if (isnan(final_dist[i]))
@@ -337,16 +337,16 @@ void GenerateOctVexSamples(
       if (final_dist[i] < 0)
           label = 0;  // inside
       fout << octree_verts[i](0) << " " << octree_verts[i](1) << " " << octree_verts[i](2)
-           << " " << label << " " << final_dist[i] << endl; 
+           << " " << label << " " << final_dist[i] << std::endl; 
     }
     fout.close();
-    cout << "Finished writing the samples into " << outSDFName << "!" << endl;
+    std::cout << "Finished writing the samples into " << outSDFName << "!" << std::endl;
   }
 }
 
 int main(int argc, char** argv){
   if (argc < 8){
-      cout << "usage: ./genOctreeL3PSDFSamples input.obj samples.sdf recon_obj.obj output_samples.ply octree_depth [default=5] flag_writePLY flag_writeOBJ flag_writeSDF" << endl;
+      std::cout << "usage: ./genOctreeL3PSDFSamples input.obj samples.sdf recon_obj.obj output_samples.ply octree_depth [default=5] flag_writePLY flag_writeOBJ flag_writeSDF" << std::endl;
   }
 
   string objName = "../data/airplane.obj";
@@ -388,10 +388,10 @@ int main(int argc, char** argv){
   if (writeSDF < 1)
     flag_writeSDF = false;
 
-  cout << "input: writePLY: " << writePLY << " writeOBJ: " << writeOBJ << " writeSDF: " << writeSDF << endl;
+  std::cout << "input: writePLY: " << writePLY << " writeOBJ: " << writeOBJ << " writeSDF: " << writeSDF << std::endl;
 
-  cout << "Current setting: ./genOctreeL3PSDFSamples " << objName << " " << outSDFName << " " << reconObjName << " " << output_pts_name << " "
-      << octreeDepth << " " << flag_writePLY  << " " << flag_recon_obj  << " " << flag_writeSDF << endl;
+  std::cout << "Current setting: ./genOctreeL3PSDFSamples " << objName << " " << outSDFName << " " << reconObjName << " " << output_pts_name << " "
+      << octreeDepth << " " << flag_writePLY  << " " << flag_recon_obj  << " " << flag_writeSDF << std::endl;
 
   GenerateOctVexSamples(objName, outSDFName, reconObjName, output_pts_name, octreeDepth, flag_writePLY, flag_recon_obj, flag_writeSDF);
 
