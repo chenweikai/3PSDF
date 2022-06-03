@@ -1,0 +1,9 @@
+/build
+/output
+.vscode/
+/CMakeFiles
+/external/libigl/external/.cache
+Makefile
+CMakeCache.txt
+cmake_install.cmake
+
