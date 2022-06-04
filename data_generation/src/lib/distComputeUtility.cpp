@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-void buildPQP(PQP_Model* ptr, string objName)
+void build_pqp(PQP_Model* ptr, string objName)
 {
 	ptr->BeginModel();
 	MatrixXd V;
@@ -33,7 +33,7 @@ void buildPQP(PQP_Model* ptr, string objName)
 }
 
 
-void buildPQP(PQP_Model* ptr, const MatrixXd& V, const MatrixXi& F)
+void build_pqp(PQP_Model* ptr, const MatrixXd& V, const MatrixXi& F)
 {
 	ptr->BeginModel();
 	PQP_REAL p1[3], p2[3], p3[3];
@@ -66,7 +66,7 @@ void buildPQP(PQP_Model* ptr, const MatrixXd& V, const MatrixXi& F)
 // queryPnt - input query point
 // nearestPnt - return the nearest point on mesh regarding to the input point
 // closestFaceIdx - return the id of the closest triangle
-double PQPABSDist(PQP_Model* m_pqp_model, Vector3d queryPnt, Vector3d& nearestPnt, int& closestFaceIdx)
+double pqp_abs_dist(PQP_Model* m_pqp_model, Vector3d queryPnt, Vector3d& nearestPnt, int& closestFaceIdx)
 {
 	PQP_DistanceResult dres;	PQP_REAL p[3];		int minTriIndex;
 	double minDist;				

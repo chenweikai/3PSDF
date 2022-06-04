@@ -5,6 +5,12 @@
 
 #include "utilities.h"
 
+string get_folder_name (const string& file_name) {
+  size_t found;
+  found = file_name.find_last_of("/\\");
+  return file_name.substr(0, found);
+}
+
 void computeBBox(string bboxObjName, VectorXd& bboxmin, VectorXd& bboxmax) {
   MatrixXd gV;
   MatrixXi gF;
@@ -15,7 +21,7 @@ void computeBBox(string bboxObjName, VectorXd& bboxmin, VectorXd& bboxmax) {
   bboxmax = maxVal;
 }
 
-void removeIdenticalVertices(const MatrixXi& F, MatrixXi& outF) {
+void remove_identical_verts(const MatrixXi& F, MatrixXi& outF) {
   vector<int> validFaceID;
   for (int i = 0; i < F.rows(); i++) {
     RowVector3i f = F.row(i);
@@ -35,7 +41,7 @@ void removeIdenticalVertices(const MatrixXi& F, MatrixXi& outF) {
   }
 }
 
-void assembleMeshParts(const vector<pair<MatrixXd, MatrixXi>>& meshParts, MatrixXd& outV, MatrixXi& outF) {
+void assemble_mesh_parts(const vector<pair<MatrixXd, MatrixXi>>& meshParts, MatrixXd& outV, MatrixXi& outF) {
   // get total number of vertices and faces
   int totalV = 0, totalF = 0;
   for(auto i : meshParts) {

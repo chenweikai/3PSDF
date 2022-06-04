@@ -1,6 +1,5 @@
 /*
-    Batch generate L3PSDF using octree based sampling
-    Only performed on original mesh
+    Batch generate 3PSDF using octree-based sampling
 */
 
 #include <experimental/filesystem>
@@ -14,28 +13,9 @@
 #include <sys/types.h>
 #include <vector>
 
-
 using namespace std;
-
 namespace fs = std::experimental::filesystem;
 
-std::vector<string> loadNames(string fileName){
-    ifstream fin(fileName);
-    if (!fin.is_open())
-        std::cout << "Cannot open " << fileName << "!" << std::endl;
-
-    int num;
-    fin >> num;
-    string name;
-    std::vector<string> outputNames;
-    while (fin >> name)
-    {
-        outputNames.push_back(name);
-        std::cout << name << std::endl;
-    }
-
-    return outputNames;
-}
 
 int main(int argc, char** argv){
 
@@ -44,10 +24,8 @@ int main(int argc, char** argv){
   string outObjDir = "/cfs-cq-dcc/weikaichen/3DReconData/ReconObj/boy_depth10";
   string testSet = "../data/test.txt";
   string todo_filename = "/cfs-cq-dcc/weikaichen/3DReconData/OBJ/coat_and_tshirt_train.txt";
-  string existingDir = "/cfs-cq-dcc/weikaichen/3DReconData/SDF_raw/boy/coat_and_tshirt_depth10";
 
   int depth = 10;
-
   int writePLY = 0;
   int writeSDF = 1;
   int writeOBJ = 1;
@@ -79,34 +57,28 @@ int main(int argc, char** argv){
   std::vector<int> todoList;
   ifstream fin;
   fin.open(todo_filename);
-  int a;
-  std::cout << "Todos: ";
-  while (fin >> a)
+  int idx;
+  while (fin >> idx)
   {
-    todoList.push_back(a);
-    std::cout << a << " ";
+    todoList.push_back(idx);
   }
   std::cout << std::endl;
   
   if (!fs::exists(dataDir)){
-    std::cout << "Does not exist path: " << dataDir << "!" << std::endl;
     fs::create_directories(dataDir);
+    std::cout << "Created directory: " << dataDir << "!" << std::endl;
   }
 
   if (!fs::exists(outSDFDir)){
-    std::cout << "Does not exist path: " << outSDFDir << "!" << std::endl;
     fs::create_directories(outSDFDir);
+    std::cout << "Created directory: " << outSDFDir << "!" << std::endl;
   }
 
   if (!fs::exists(outObjDir)){
-    std::cout << "Does not exist path: " << outObjDir << "!" << std::endl;
     fs::create_directories(outObjDir);
+    std::cout << "Created directory: " << outObjDir << "!" << std::endl;
   }
 
-  // if (!fs::exists(existingDir)){
-  //   std::cout << "Does not exist path: " << existingDir << "!" << std::endl;
-  //   fs::create_directories(existingDir);
-  // }
 
   // process according to the order of the todo list
   for (int i = 0; i < todoList.size(); i++) {
@@ -120,13 +92,8 @@ int main(int argc, char** argv){
     }
     string SDFName = outSDFDir + "/" + id + ".sdf";  
     string reconObjName =  outObjDir + "/" + id + ".obj";
-    string existSDFName = existingDir + "/" + id + ".sdf";
-    if (fs::exists(existSDFName)) {
-        std::cout << "Already computed! Skip!" << std::endl;
-        continue;
-    }
+
     stringstream ss;
-    // ss << "./genSamplesLocal3Pole " << objName << " " << SDFName << " " << reconObjName << " " << regularRes << " " << writeSDF << std::endl;
     string output_ply_name = outObjDir + "/" + id + ".ply";
     ss << "./genOctreeL3PSDFSamples " << objName << " " << SDFName << " " << reconObjName << " " << output_ply_name << " "
          << depth << " " << writePLY << " " << writeOBJ << " " << writeSDF << std::endl;

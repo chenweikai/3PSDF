@@ -1,8 +1,6 @@
 /*
     1) Generate samples on Octree cell vertices
     2) Distance computed based on local version of 3-Pole signed distance
-    For each mesh, the output is saved to a sdf file
-    Weikai Chen
 */
 
 #include <chrono> 
@@ -47,7 +45,7 @@ struct CompareVector3d {
 //               for each cell, pair.first - min corner; pair.second - max corner
 // @param verts: the output vertices
 // @param faces: the output faces - each face contains 8 vertice ids
-void BuildOctreeVertFaceConnection(
+void build_octree_vert_face_connection(
     const vector<pair<Vector3d, Vector3d>>& cells,
     vector<Vector3d>& verts,
     vector<vector<int>>& faces) {
@@ -90,7 +88,7 @@ void BuildOctreeVertFaceConnection(
 // @param faces: the input octree faces
 //
 // return: mapping from vertex (id) to the ids of faces that it connects to
-map<Vector3d, vector<int>, CompareVector3d> BuildOctreeVertToFaceMapping(
+map<Vector3d, vector<int>, CompareVector3d> build_octree_vert2face_map(
     const vector<Vector3d>& verts,
     const vector<vector<int>>& faces) {
   map<Vector3d, vector<int>, CompareVector3d> vert_to_face;
@@ -105,12 +103,11 @@ map<Vector3d, vector<int>, CompareVector3d> BuildOctreeVertToFaceMapping(
 }
 
 // Perform marching cubes on each octree cells and merge the local meshes into a global one
-void LocalizedMarchingCubes(
+void localized_marching_cubes(
     string output_obj_name,
     const vector<Vector3d>& verts,
     const vector<vector<int>>& faces,
     const vector<double>& distances) {
-  string output_folder = "../output/cells/";
   vector<pair<MatrixXd, MatrixXi>> mesh_parts;
   for (int i = 0; i < faces.size(); i++) {
     VectorXd local_dist(8, 1);
@@ -141,12 +138,12 @@ void LocalizedMarchingCubes(
   }
   MatrixXd total_verts;
   MatrixXi total_faces;
-  assembleMeshParts(mesh_parts, total_verts, total_faces);
+  assemble_mesh_parts(mesh_parts, total_verts, total_faces);
   save_obj_mesh(output_obj_name, total_verts, total_faces);
   std::cout << "Finished writing the reconstructed mesh into " << output_obj_name << "!" << std::endl;
 }
 
-// Generate samples that are on the vertices of the octree
+// Generate 3PSDF samples that are the vertices of the octree
 //
 // @param objName: the input file name of obj mesh
 // @param outSDFName: the file name of the output SDF file
@@ -156,7 +153,7 @@ void LocalizedMarchingCubes(
 // @param flag_write_ply: flag of whether to output the sampling points to PLY file for visualization
 // @param flag_recon_obj: flag of whether to reconstruct the mesh from the computed L3PSDF field
 // @param flag_write_sdf: flag of whether to output SDF file
-void GenerateOctVexSamples(
+void generate_octree_3psdf_samples(
     string objName,
     string outSDFName,
     string reconObjName,
@@ -174,26 +171,26 @@ void GenerateOctVexSamples(
     std::cout << "Failed to load the input mesh! Quit!" << std::endl;
     exit(0);
   }
+
   vector<pair<Vector3d, Vector3d>> cells;
   MatrixXd cellCornerPts;
   // uncommnet the following line if you are using a specified bounding box
   // obj.setBBox(glm::dvec3(-0.65, -1, -0.16), glm::dvec3(0.65, 0.8, 0.16));
-
-  cells = obj.getTreeCells(octreeDepth, cellCornerPts);
+  cells = obj.get_tree_cells(octreeDepth, cellCornerPts);
   std::cout << "cell number: " << cells.size() << std::endl;
 
   // extract vertices, faces and vert-to-face mapping from octree cells
   vector<Vector3d> octree_verts;
   vector<vector<int>> octree_faces;
-  BuildOctreeVertFaceConnection(cells, octree_verts, octree_faces);
-  map<Vector3d, vector<int>, CompareVector3d> vert_to_face = BuildOctreeVertToFaceMapping(octree_verts, octree_faces);
+  build_octree_vert_face_connection(cells, octree_verts, octree_faces);
+  map<Vector3d, vector<int>, CompareVector3d> vert_to_face = build_octree_vert2face_map(octree_verts, octree_faces);
 
   // load obj mesh and remove the duplicated vertices
   Eigen::MatrixXd V;
   Eigen::MatrixXi F;
   igl::readOBJ(objName,V,F);
   MatrixXi newF;
-  removeIdenticalVertices(F, newF);
+  remove_identical_verts(F, newF);
   F = newF;
 
   /* Calculation of the Localized 3-Pole Signed Distance Field (L3PSDF) */
@@ -215,7 +212,7 @@ void GenerateOctVexSamples(
     Vector3d cell_max = octree_verts[face[7]];  // cell maximum corner
     Vector3d cell_center = (cell_min + cell_max) / 2.0;
     Vector3d cell_length = cell_max - cell_min;
-    vector<double> distances = computeT3PoleDistForPtsInCell(V, F, query_points, make_pair(cell_center, cell_length), i);
+    vector<double> distances = compute_3psdf_per_cell(V, F, query_points, make_pair(cell_center, cell_length), i);
     assert(distances.size() == 8);
     for (int j = 0; j < distances.size(); j++) {
       int vid = face[j];
@@ -266,8 +263,7 @@ void GenerateOctVexSamples(
 
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); 
-	std::cout << "Computing L3PSDF at depth " << octreeDepth << " Used time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;
-
+  std::cout << "Computing L3PSDF at depth " << octreeDepth << " Used time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;
   std::cout << "number of inside : outside : nan = " << inside_cnt << " ： " << outside_cnt << " : " << nan_cnt << std::endl;
   std::cout << "ratio of inside : outside : nan = " << 1.0 << " ： " << double(outside_cnt) / inside_cnt << " : " << double(nan_cnt) / inside_cnt << std::endl;
 
@@ -307,13 +303,12 @@ void GenerateOctVexSamples(
     // igl::copyleft::marching_cubes(final_dist, points, grid_size(0), grid_size(1), grid_size(2), SV1, SF1);
 
     // reconstruct using localized marching cubes
-    LocalizedMarchingCubes(reconObjName, octree_verts, octree_faces, final_dist);
+    localized_marching_cubes(reconObjName, octree_verts, octree_faces, final_dist);
     string truncated_obj_name = reconObjName.substr(0, reconObjName.size() - 4);
     // reconstruct truncated field which is the GT for deep learning
     truncated_obj_name += "_truncated.obj";
-    LocalizedMarchingCubes(truncated_obj_name, octree_verts, octree_faces, truncated_dist);
+    localized_marching_cubes(truncated_obj_name, octree_verts, octree_faces, truncated_dist);
   }
-
 
   // output the 3D sampling points to PLY
   if (flag_write_ply) {
@@ -326,6 +321,7 @@ void GenerateOctVexSamples(
     std::cout << "Finished writing the output sampling points into " << output_pts_name << "!" << std::endl;
   }
 
+  // output the generated 3-pole signed distance field into a .sdf file
   if (flag_write_sdf) {
     // write into txt format
     ofstream fout(outSDFName);
@@ -346,13 +342,20 @@ void GenerateOctVexSamples(
 
 int main(int argc, char** argv){
   if (argc < 8){
-      std::cout << "usage: ./genOctreeL3PSDFSamples input.obj samples.sdf recon_obj.obj output_samples.ply octree_depth [default=5] flag_writePLY flag_writeOBJ flag_writeSDF" << std::endl;
+      std::cout << "usage: ./genOctreeL3PSDFSamples input.obj output.sdf recon_obj.obj output_samples.ply octree_depth [default=5] flag_writePLY flag_writeOBJ flag_writeSDF" << std::endl;
   }
 
-  string objName = "../data/airplane.obj";
-  string outSDFName = "../output/airplane.sdf";
-  string reconObjName = "../output/airplane_recon.obj";
-  string output_pts_name = "../output/pts_octvex.ply";
+  string objName = "../data/soldier_fight.obj";
+  string outSDFName = "../output/soldier_fight.sdf";
+  string reconObjName = "../output/soldier_fight.obj";
+  string output_pts_name = "../output/soldier_fight.ply";
+
+  string output_folder_name = get_folder_name(outSDFName);
+  if (!fs::exists(output_folder_name)){
+    fs::create_directories(output_folder_name);
+    std::cout << "Created output directory: " << output_folder_name << "!" << std::endl;
+  }
+
   int writePLY = 1;
   int writeOBJ = 1;
   int writeSDF = 0;
@@ -376,24 +379,22 @@ int main(int argc, char** argv){
         sscanf(argv[i], "%d", &writeSDF);
   }
 
-
-  bool flag_writePLY = true;
-  bool flag_recon_obj = true;
-  bool flag_writeSDF = true;
+  bool flag_writePLY = true; // flag of whether to dump the sampling points into .ply file
+  bool flag_reconObj = true; // flag of whether to save the reconstructed obj mesh from sampled 3PSDF
+  bool flag_writeSDF = true; // flag of whether to save the geneated 3PSDF to a .sdf file
 
   if (writePLY < 1)
     flag_writePLY = false;
   if (writeOBJ < 1)
-    flag_recon_obj = false;
+    flag_reconObj = false;
   if (writeSDF < 1)
     flag_writeSDF = false;
 
   std::cout << "input: writePLY: " << writePLY << " writeOBJ: " << writeOBJ << " writeSDF: " << writeSDF << std::endl;
-
   std::cout << "Current setting: ./genOctreeL3PSDFSamples " << objName << " " << outSDFName << " " << reconObjName << " " << output_pts_name << " "
-      << octreeDepth << " " << flag_writePLY  << " " << flag_recon_obj  << " " << flag_writeSDF << std::endl;
+      << octreeDepth << " " << flag_writePLY  << " " << flag_reconObj  << " " << flag_writeSDF << std::endl;
 
-  GenerateOctVexSamples(objName, outSDFName, reconObjName, output_pts_name, octreeDepth, flag_writePLY, flag_recon_obj, flag_writeSDF);
+  generate_octree_3psdf_samples(objName, outSDFName, reconObjName, output_pts_name, octreeDepth, flag_writePLY, flag_reconObj, flag_writeSDF);
 
   return 1;
 }

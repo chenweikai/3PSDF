@@ -14,9 +14,6 @@
 #include <Eigen/Core>
 #include <queue>
 #include "Intersection.h"
-// #include <igl/opengl/glfw/Viewer.h>
-// #include <igl/opengl/glfw/imgui/ImGuiMenu.h>
-// #include "visualization.h"
 
 using namespace std;
 using namespace Eigen;

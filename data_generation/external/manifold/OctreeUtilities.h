@@ -1,8 +1,7 @@
 /*
-    Implemented 1) Octree Generation
-      2) Octree based importance sampling
-      3) Octree based inside/outside determination
-    Weikai Chen
+Implemented 1) Octree Generation
+  2) Octree based importance sampling
+  3) Octree based inside/outside determination
 */
 #ifndef OctreeUtilities_H_
 #define OctreeUtilities_H_
@@ -20,7 +19,6 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Octree.h"
-// #include "BVH.h"
 #include <map>
 #include <Eigen/Core>
 #include <cstdlib>
@@ -29,10 +27,10 @@
 #include <random>
 using namespace std;
 using namespace Eigen;
+
 /*************************************************************************** 
   OBJ Loading 
  ***************************************************************************/
- 
 class Model_OBJ
 {
   public: 
@@ -50,7 +48,7 @@ class Model_OBJ
   // pair<Vector3d, Vector3d> : pair<min_cornor of the cell, the 3D length of the cell>
   vector<pair<Vector3d, Vector3d>> getTreeCells(int resolution, const Vector3d& bboxmin, const Vector3d& bboxmax);
   vector<pair<Vector3d, Vector3d>> getTreeCells(int resolution);
-  vector<pair<Vector3d, Vector3d>> getTreeCells(int resolution, MatrixXd& cellCornerPts);
+  vector<pair<Vector3d, Vector3d>> get_tree_cells(int resolution, MatrixXd& cellCornerPts);
   vector<pair<Vector3d, Vector3d>> getOccupiedCells(int resolution, MatrixXd& cellCornerPts);
   vector<pair<Vector3d, Vector3d>> getEmptyCells(int resolution, MatrixXd& cellCornerPts);
   // return the cells that contain the query point

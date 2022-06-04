@@ -751,7 +751,7 @@ vector<pair<Vector3d, Vector3d>> Model_OBJ::getBoundingCellsForQueryPnt(const Ro
   return output;
 }
 
-vector<pair<Vector3d, Vector3d>> Model_OBJ::getTreeCells(int resolution, MatrixXd& cellCornerPts)
+vector<pair<Vector3d, Vector3d>> Model_OBJ::get_tree_cells(int resolution, MatrixXd& cellCornerPts)
 {
 	vertices_buf = vertices;
 	face_indices_buf = face_indices;
@@ -873,7 +873,7 @@ vector<Vector3d> Model_OBJ::generateImpSamples(int cellRes, int targetSampleNum)
 {
 	vector<pair<Vector3d, Vector3d>> cells;
 	MatrixXd cellCorners;
-	cells = getTreeCells(cellRes, cellCorners);
+	cells = get_tree_cells(cellRes, cellCorners);
 	int numPerCell = targetSampleNum / cells.size();
 	std::random_device rd;
   std::mt19937 gen(rd());
