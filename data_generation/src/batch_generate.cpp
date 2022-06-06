@@ -6,11 +6,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <stdlib.h> 
-#include <stdio.h> 
-#include <sstream>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <vector>
 
 using namespace std;
@@ -58,8 +53,7 @@ int main(int argc, char** argv){
   ifstream fin;
   fin.open(todo_filename);
   int idx;
-  while (fin >> idx)
-  {
+  while (fin >> idx) {
     todoList.push_back(idx);
   }
   std::cout << std::endl;
@@ -95,7 +89,7 @@ int main(int argc, char** argv){
 
     stringstream ss;
     string output_ply_name = outObjDir + "/" + id + ".ply";
-    ss << "./genOctreeL3PSDFSamples " << objName << " " << SDFName << " " << reconObjName << " " << output_ply_name << " "
+    ss << "./gen_3psdf_samples " << objName << " " << SDFName << " " << reconObjName << " " << output_ply_name << " "
          << depth << " " << writePLY << " " << writeOBJ << " " << writeSDF << std::endl;
     string command = ss.str();
     std::cout << "executing command: " << command << std::endl;

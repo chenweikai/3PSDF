@@ -11,13 +11,15 @@
 #include <igl/writeOBJ.h>
 #include <igl/writePLY.h>
 
-#include "computeLocal3PoleSDF.h"
+#include "dist_compute.h"
 #include "utilities.h"
 #include "OctreeUtilities.h"
 
 using namespace std;
 using namespace Eigen;
 using namespace igl;
+
+namespace fs = std::experimental::filesystem;
 
 struct CompareVector3d {
   bool operator()(const Eigen::Vector3d& p1, const Eigen::Vector3d& p2) const {
@@ -138,8 +140,8 @@ void localized_marching_cubes(
   }
   MatrixXd total_verts;
   MatrixXi total_faces;
-  assemble_mesh_parts(mesh_parts, total_verts, total_faces);
-  save_obj_mesh(output_obj_name, total_verts, total_faces);
+  AssembleMeshParts(mesh_parts, total_verts, total_faces);
+  SaveObjMesh(output_obj_name, total_verts, total_faces);
   std::cout << "Finished writing the reconstructed mesh into " << output_obj_name << "!" << std::endl;
 }
 
@@ -190,7 +192,7 @@ void generate_octree_3psdf_samples(
   Eigen::MatrixXi F;
   igl::readOBJ(objName,V,F);
   MatrixXi newF;
-  remove_identical_verts(F, newF);
+  RemoveIdenticalVerts(F, newF);
   F = newF;
 
   /* Calculation of the Localized 3-Pole Signed Distance Field (L3PSDF) */
@@ -212,7 +214,7 @@ void generate_octree_3psdf_samples(
     Vector3d cell_max = octree_verts[face[7]];  // cell maximum corner
     Vector3d cell_center = (cell_min + cell_max) / 2.0;
     Vector3d cell_length = cell_max - cell_min;
-    vector<double> distances = compute_3psdf_per_cell(V, F, query_points, make_pair(cell_center, cell_length), i);
+    vector<double> distances = Compute3psdfPerCell(V, F, query_points, make_pair(cell_center, cell_length), i);
     assert(distances.size() == 8);
     for (int j = 0; j < distances.size(); j++) {
       int vid = face[j];
@@ -350,7 +352,7 @@ int main(int argc, char** argv){
   string reconObjName = "../output/soldier_fight.obj";
   string output_pts_name = "../output/soldier_fight.ply";
 
-  string output_folder_name = get_folder_name(outSDFName);
+  string output_folder_name = GetFolderName(outSDFName);
   if (!fs::exists(output_folder_name)){
     fs::create_directories(output_folder_name);
     std::cout << "Created output directory: " << output_folder_name << "!" << std::endl;

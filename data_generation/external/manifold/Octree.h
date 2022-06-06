@@ -134,9 +134,9 @@ public:
 
 	bool Intersection(int face_index, glm::dvec3 &min_corner, glm::dvec3 &length, vector<glm::dvec3> &vertices)
 	{
-		float boxcenter[3];
-		float boxhalfsize[3];
-		float triverts[3][3];
+		double boxcenter[3];
+		double boxhalfsize[3];
+		double triverts[3][3];
 		for (int i = 0; i < 3; ++i)
 		{
 			boxhalfsize[i] = length[i] * 0.5;

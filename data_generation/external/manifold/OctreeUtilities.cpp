@@ -708,27 +708,6 @@ for (int iter = 0; iter < ITER_NUM; ++iter) {
 }
 }
 
-// bool Model_OBJ::Project(glm::dvec3& o, glm::dvec3& d)
-// {
-// 	pair<glm::dvec3,bool> p = bvh->rayIntersect(o, d);
-// 	if (!p.second)
-// 		return false;
-// 	o = p.first;
-// 	return true;
-// }
-
-// void Model_OBJ::Build_BVH()
-// {
-// 	bvh = new BVH();
-// 	bvs.resize(face_indices.size());
-// 	for (int i = 0; i < (int)face_indices.size(); ++i)
-// 	{
-// 		bvs[i] = new BV(vertices[face_indices[i][0]],
-// 			vertices[face_indices[i][1]],
-// 			vertices[face_indices[i][2]]);
-// 	}
-// //	bvh->updateBVH(bvs, 0, 0, bvs.size()-1);
-// }
 
 vector<pair<Vector3d, Vector3d>> Model_OBJ::getTreeCells(
     int resolution,

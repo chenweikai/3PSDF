@@ -1,117 +1,146 @@
 // utility functions
 
+#include "utilities.h"
+
+#include <fstream>
 #include <map>
 #include <sstream>
 
-#include "utilities.h"
+void ComputeBbox(std::string input_obj_name, Eigen::VectorXd& bbox_min, Eigen::VectorXd& bbox_max) {
+  Eigen::MatrixXd verts;
+  Eigen::MatrixXi faces;
+  igl::read_triangle_mesh(input_obj_name, verts, faces);
+  Eigen::VectorXd max_val = verts.colwise().maxCoeff();
+  Eigen::VectorXd minVal = verts.colwise().minCoeff();
+  bbox_min = minVal;
+  bbox_max = max_val;
+}
 
-string get_folder_name (const string& file_name) {
+std::string GetFolderName(const std::string& file_name){
   size_t found;
   found = file_name.find_last_of("/\\");
   return file_name.substr(0, found);
 }
 
-void computeBBox(string bboxObjName, VectorXd& bboxmin, VectorXd& bboxmax) {
-  MatrixXd gV;
-  MatrixXi gF;
-  igl::read_triangle_mesh(bboxObjName, gV, gF);
-  VectorXd maxVal = gV.colwise().maxCoeff();
-  VectorXd minVal = gV.colwise().minCoeff();
-  bboxmin = minVal;
-  bboxmax = maxVal;
-}
-
-void remove_identical_verts(const MatrixXi& F, MatrixXi& outF) {
-  vector<int> validFaceID;
-  for (int i = 0; i < F.rows(); i++) {
-    RowVector3i f = F.row(i);
-    map<int, int> faces;
+void RemoveIdenticalVerts(const Eigen::MatrixXi& input_faces, Eigen::MatrixXi& output_faces) {
+  std::vector<int> valid_face_id;
+  for (int i = 0; i < input_faces.rows(); i++) {
+    Eigen::RowVector3i f = input_faces.row(i);
+    std::map<int, int> faces;
     faces[f[0]] = 1;
     faces[f[1]] = 1;
     faces[f[2]] = 1;
     if (faces.size() == 3)
-      validFaceID.push_back(i);
+      valid_face_id.push_back(i);
   }
 
   // only keep those valide faces
-  outF = MatrixXi(validFaceID.size(), 3);
-  outF.fill(0);
-  for (int i = 0; i < validFaceID.size(); i++) {
-    outF.row(i) = F.row(validFaceID[i]);
+  output_faces = Eigen::MatrixXi(valid_face_id.size(), 3);
+  output_faces.fill(0);
+  for (int i = 0; i < valid_face_id.size(); i++) {
+    output_faces.row(i) = input_faces.row(valid_face_id[i]);
   }
 }
 
-void assemble_mesh_parts(const vector<pair<MatrixXd, MatrixXi>>& meshParts, MatrixXd& outV, MatrixXi& outF) {
+void ReorderMeshIndices(
+    const Eigen::MatrixXd& all_verts, const Eigen::MatrixXi& all_faces,
+    const std::vector<int>& part_faces, Eigen::MatrixXd& out_verts, Eigen::MatrixXi& out_faces) {
+  std::map<int, int> old_to_New; // mapp from old index to new index in new mesh
+  for(int i = 0; i < part_faces.size(); ++i) {
+    int fid = part_faces[i];
+    old_to_New[all_faces(fid,0)] = -1;
+    old_to_New[all_faces(fid,1)] = -1;
+    old_to_New[all_faces(fid,2)] = -1;
+  }
+  // only keep selected vertices and update vertex index
+  out_verts = Eigen::MatrixXd(old_to_New.size(), 3);
+  int cnt = 0;
+  for (auto iter = old_to_New.begin(); iter != old_to_New.end(); iter++) {
+    out_verts.row(cnt) = all_verts.row(iter->first);
+    iter->second = cnt++;
+  }
+  // update face index
+  out_faces = Eigen::MatrixXi(part_faces.size(), 3);
+  for(int i = 0; i < part_faces.size(); ++i) {
+    int fid = part_faces[i];
+    out_faces(i, 0) = old_to_New[all_faces(fid, 0)];
+    out_faces(i, 1) = old_to_New[all_faces(fid, 1)];
+    out_faces(i, 2) = old_to_New[all_faces(fid, 2)];
+  }
+}
+
+void AssembleMeshParts(
+    const std::vector<std::pair<Eigen::MatrixXd, Eigen::MatrixXi>>& mesh_parts,
+    Eigen::MatrixXd& out_verts, Eigen::MatrixXi& out_faces) {
   // get total number of vertices and faces
-  int totalV = 0, totalF = 0;
-  for(auto i : meshParts) {
-      const MatrixXd& V = i.first;
-      const MatrixXi& F = i.second;
-      totalV += V.rows();
-      totalF += F.rows();
+  int vert_number = 0, face_number = 0;
+  for(auto part : mesh_parts) {
+    const Eigen::MatrixXd& verts = part.first;
+    const Eigen::MatrixXi& faces = part.second;
+    vert_number += verts.rows();
+    face_number += faces.rows();
   }
 
-  outV = MatrixXd(totalV, 3);
-  outF = MatrixXi(totalF, 3);
+  out_verts = Eigen::MatrixXd(vert_number, 3);
+  out_faces = Eigen::MatrixXi(face_number, 3);
   // construct the output mesh
-  int Vcnt = 0, Fcnt = 0;
-  for(auto it : meshParts) {
-      const MatrixXd& V = it.first;
-      const MatrixXi& F = it.second;
-      for (int i = 0; i < V.rows(); i++) {
-          outV.row(Vcnt + i) = V.row(i);
-      }
-      for (int i=0; i < F.rows(); i++) {
-          outF(Fcnt+i,0) = F(i,0) + Vcnt;
-          outF(Fcnt+i,1) = F(i,1) + Vcnt;
-          outF(Fcnt+i,2) = F(i,2) + Vcnt;
-      }
-
-      Vcnt += V.rows();
-      Fcnt += F.rows();
-  }
-}
-
-// customized mesh save function -- automatically remove NAN vertices
-void save_obj_mesh(
-    string filename,
-    const MatrixXd& verts,
-    const MatrixXi& faces) {
-  ofstream fout (filename);
-  if (fout.is_open()) {
-    map<int, int> indexMap; // used to filter out NAN vertices
-    int idx = 0;
-    for(int i=0; i < verts.rows(); ++i) {
-        if (isnan(verts.row(i)[0])) {
-            indexMap[i] = -1;
-        } else {
-            indexMap[i] = ++idx;
-            fout << "v " << verts.row(i)[0] << " " << verts.row(i)[1] << " " << verts.row(i)[2] << std::endl;
-        }
+  int vert_cnt = 0, face_cnt = 0;
+  for(auto part : mesh_parts) {
+    const Eigen::MatrixXd& cur_verts = part.first;
+    const Eigen::MatrixXi& cur_faces = part.second;
+    for (int i = 0; i < cur_verts.rows(); i++) {
+      out_verts.row(vert_cnt + i) = cur_verts.row(i);
+    }
+    for (int i=0; i < cur_faces.rows(); i++) {
+      out_faces(face_cnt + i, 0) = cur_faces(i, 0) + vert_cnt;
+      out_faces(face_cnt + i, 1) = cur_faces(i, 1) + vert_cnt;
+      out_faces(face_cnt + i, 2) = cur_faces(i, 2) + vert_cnt;
     }
 
-    for(int i =0; i < faces.rows(); ++i) {
+    vert_cnt += cur_verts.rows();
+    face_cnt += cur_faces.rows();
+  }
+}
+
+void SaveObjMesh(
+    std::string filename,
+    const Eigen::MatrixXd& verts,
+    const Eigen::MatrixXi& faces) {
+  std::ofstream fout (filename);
+  if (fout.is_open()) {
+    std::map<int, int> indexMap; // used to filter out NAN vertices
+    int idx = 0;
+    for(int i = 0; i < verts.rows(); ++i) {
+      if (isnan(verts.row(i)[0])) {
+        indexMap[i] = -1;
+      } else {
+        indexMap[i] = ++idx;
+        fout << "v " << verts.row(i)[0] << " " << verts.row(i)[1] << " " << verts.row(i)[2] << std::endl;
+      }
+    }
+
+    for(int i = 0; i < faces.rows(); ++i) {
       int vid0 = faces.row(i)[0];
       int vid1 = faces.row(i)[1];
       int vid2 = faces.row(i)[2];
 
       auto it = indexMap.find(vid0);
       if (it == indexMap.end()) {
-          std::cerr << "Cannot find the vertex in save_obj_mesh function!" << std::endl;
+        std::cerr << "Cannot find the vertex in save_obj_mesh function!" << std::endl;
       } else {
         if (indexMap[vid0] == -1)
           continue;
       }
       it = indexMap.find(vid1);
       if (it == indexMap.end()) {
-          std::cerr << "Cannot find the vertex in save_obj_mesh function!" << std::endl;
+        std::cerr << "Cannot find the vertex in save_obj_mesh function!" << std::endl;
       } else {
         if (indexMap[vid1] == -1)
           continue;
       }
       it = indexMap.find(vid2);
       if (it == indexMap.end()) {
-          std::cerr << "Cannot find the vertex in save_obj_mesh function!" << std::endl;
+        std::cerr << "Cannot find the vertex in save_obj_mesh function!" << std::endl;
       } else {
         if (indexMap[vid2] == -1)
           continue;
@@ -123,22 +152,4 @@ void save_obj_mesh(
     }
     fout.close();
   }
-}
-
-void normalizeMesh(string input_obj_name, string output_obj_name) {
-  MatrixXd gV;
-  MatrixXi gF;
-  igl::read_triangle_mesh(input_obj_name, gV, gF);
-  VectorXd bboxmax = gV.colwise().maxCoeff();
-  VectorXd bboxmin = gV.colwise().minCoeff();
-  gV.rowwise() -= bboxmin.transpose();
-  VectorXd length = bboxmax - bboxmin;
-  double maxLength = length.maxCoeff();
-  gV = gV / maxLength;
-  VectorXd maxVal = gV.colwise().maxCoeff();
-  VectorXd minVal = gV.colwise().minCoeff();
-  VectorXd newLength = maxVal - minVal;
-  VectorXd half_size = newLength / 2.0;
-  gV.rowwise() -= half_size.transpose();
-  save_obj_mesh(output_obj_name, gV, gF);
 }
