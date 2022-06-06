@@ -34,7 +34,7 @@ double PqpAbsDist(PQP_Model* pqp_model, Eigen::Vector3d query_pnt, Eigen::Vector
 // @param verts: the verts of the input mesh
 // @param faces: the faces of the input mesh
 // @param points: the input query points
-// @param cell: the input cell: first - min corner of cell, second - cell length
+// @param cell: the input cell: first - min corner of cell, second - cell size
 // @param cell_id: the id of the input cell
 //
 // @return: the computed 3psdf distance for query points

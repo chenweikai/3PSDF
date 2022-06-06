@@ -101,7 +101,7 @@ void Model_OBJ::Build_Tree(int resolution, const Vector3d& bboxMin, const Vector
 
 void Model_OBJ::Build_Tree(int resolution)
 {
-	cout << "building tree ...";
+	cout << "building tree ... ";
   if (flag_use_external_bbox == false)
 	  Calc_Bounding_Box();
   

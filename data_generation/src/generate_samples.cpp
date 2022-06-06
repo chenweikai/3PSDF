@@ -46,7 +46,7 @@ struct CompareVector3d {
 // @param cells: the input octree cells
 //               for each cell, pair.first - min corner; pair.second - max corner
 // @param verts: the output vertices
-// @param faces: the output faces - each face contains 8 vertice ids
+// @param faces: the output faces, each face contains 8 vertice ids
 void build_octree_vert_face_connection(
     const vector<pair<Vector3d, Vector3d>>& cells,
     vector<Vector3d>& verts,
@@ -68,7 +68,7 @@ void build_octree_vert_face_connection(
 		corner_points.push_back(min_corner + Vector3d(x, 0, 0));
 		corner_points.push_back(min_corner + Vector3d(x, 0, z));
 		corner_points.push_back(min_corner + Vector3d(x, y, 0));
-		corner_points.push_back(min_corner + Vector3d(x, y, z));  // // cell maximum corner
+		corner_points.push_back(min_corner + Vector3d(x, y, z));  // cell maximum corner
     vector<int> vert_ids;
     for (int i = 0; i < corner_points.size(); i++) {
       if (vert_map.find(corner_points[i]) ==  vert_map.end()) {

@@ -25,70 +25,85 @@ void Barycentric(const Eigen::Vector3d& p, const Eigen::Vector3d& a, const Eigen
 }
 
 // Compute sign of the query point via angle weighted pseudonormals
-double ComputeSignViaPseudonormal(
-        const int& vertID,
-        const Eigen::MatrixXd& all_verts,
-        const Eigen::MatrixXi& all_faces,
+//
+// @param closest_vert_id: the id of query point's closest vertex on the mesh
+// @param mesh_verts, mesh_faces: mesh vertices and mesh faces
+// @param dir: unit vector that pointing from the closest vertex to the query point
+// @param face_normals: face normals of the mesh
+// @param vert_to_face: mapping from mesh vertex to all face ids that it connects to
+//
+// @return: the dot product between dir and the pseudonormal, that is later used to compute angle in between
+double GetAngleViaPseudonormal(
+        const int& closest_vert_id,
+        const Eigen::MatrixXd& mesh_verts,
+        const Eigen::MatrixXi& mesh_faces,
         const Eigen::Vector3d& dir, 
         const Eigen::MatrixXd& face_normals,
-        std::map<int, std::vector<int>>& vert2Face) {
-  auto iter = vert2Face.find(vertID);
-  if (iter == vert2Face.end()) {
+        std::map<int, std::vector<int>>& vert_to_face) {
+  auto iter = vert_to_face.find(closest_vert_id);
+  if (iter == vert_to_face.end()) {
       std::cout << "The vertex is not found in function verifyAngleViaVertConnection!" << std::endl;
   }
 
-  std::vector<int> faces = vert2Face[vertID];
-  std::map<int, int> fids; // use std::map to avoid duplicated face ids
+  std::vector<int> faces = vert_to_face[closest_vert_id];
+  std::unordered_map<int, int> fids;
   for(auto f : faces)
     fids[f] = 1;
 
-  Eigen::RowVector3d sumNormal(0.0, 0.0, 0.0);
-  for(auto i=fids.begin(); i!=fids.end(); i++) {
+  Eigen::RowVector3d normal_sum(0.0, 0.0, 0.0);
+  for(auto i = fids.begin(); i != fids.end(); i++) {
     // Compute angles
-    Eigen::RowVector3i f_verts = all_faces.row(i->first);
+    Eigen::RowVector3i f_verts = mesh_faces.row(i->first);
     int v0 = -1;
     int v1 = -1;
-    // find out the other two vertices other than the input vertex id
+    // Find out the other two vertices other than the input vertex id
     for (int j = 0; j < 3; j++) {
-      if (f_verts[j] == vertID) continue;
+      if (f_verts[j] == closest_vert_id) continue;
       if (v0 == -1) {
         v0 = f_verts[j];
         continue;
       }
       if (v1 == -1) v1 = f_verts[j];
     }
-    Eigen::RowVector3d edge0 = all_verts.row(v0) - all_verts.row(vertID);
-    Eigen::RowVector3d edge1 = all_verts.row(v1) - all_verts.row(vertID);
+    Eigen::RowVector3d edge0 = mesh_verts.row(v0) - mesh_verts.row(closest_vert_id);
+    Eigen::RowVector3d edge1 = mesh_verts.row(v1) - mesh_verts.row(closest_vert_id);
     edge0.normalize();
     edge1.normalize();
     double dot_p = edge0.dot(edge1);
     double angle = acos(dot_p);
     Eigen::RowVector3d n = face_normals.row(i->first);
-    sumNormal += angle * n;
+    normal_sum += angle * n;
   }
 
-  sumNormal.normalize();
-  double sign = sumNormal.dot(dir);
+  normal_sum.normalize();
+  double sign = normal_sum.dot(dir);
   return sign;
 }
 
-// Compute the maximum angle between the input direction and face normals based on vertex connections
-double GetMaxAngleViaVertConnection(
-           const int& vertID,
-           const Eigen::Vector3d& dir,
-           const Eigen::MatrixXd& face_normals,
-           std::map<int, std::vector<int>>& vert2Face) {
-  auto iter = vert2Face.find(vertID);
-  if (iter == vert2Face.end()) {
+// Compute the dot product between the input direction and average face normals based on vertex connections
+//
+// @param closest_vert_id: the id of query point's closest vertex on the mesh
+// @param dir: unit vector that pointing from the closest vertex to the query point
+// @param face_normals: face normals of the mesh
+// @param vert_to_face: mapping from mesh vertex to all face ids that it connects to
+//
+// @return: the dot product between dir and the average normal, that is later used to compute angle in between
+double GetAngleViaVertConnection(
+    const int& closest_vert_id,
+    const Eigen::Vector3d& dir,
+    const Eigen::MatrixXd& face_normals,
+    std::map<int, std::vector<int>>& vert_to_face) {
+  auto iter = vert_to_face.find(closest_vert_id);
+  if (iter == vert_to_face.end()) {
       std::cout << "The vertex is not found in function verifyAngleViaVertConnection!" << std::endl;
   }
 
-  std::vector<int> faces = vert2Face[vertID];
+  std::vector<int> faces = vert_to_face[closest_vert_id];
   std::map<int, int> fids; // use std::map to avoid duplicated face ids
   for(auto f : faces)
     fids[f] = 1;
 
-  double maxV = -1e10;
+  double max_dot_product = -1e10;
   Eigen::RowVector3d aveNormal(0.0, 0.0, 0.0);
   for(auto i=fids.begin(); i!=fids.end(); i++) {
     Eigen::RowVector3d n = face_normals.row(i->first);
@@ -97,17 +112,17 @@ double GetMaxAngleViaVertConnection(
 
   aveNormal = aveNormal / double(fids.size());
   aveNormal.normalize();
-  maxV = aveNormal.dot(dir);
-  return maxV;
+  max_dot_product = aveNormal.dot(dir);
+  return max_dot_product;
 }
 
 
-// Compute the maximum angle between the input direction and face normals based on vertex connections
+// Compute the dot product between the input direction and face normals based on ege connections
 //
 // @param a, b, c: the barycentric coordinate of v0, v1, v2 of a triangle
 // @param face
-double GetMaxAngleViaEdgeConnection(
-    const float& a, const float& b, const float& c, 
+double GetAngleViaEdgeConnection(
+    double a, double b, double c,
     const int& face_id,
     const Eigen::Vector3d& input_dir,
     const Eigen::MatrixXi& faces,
@@ -174,11 +189,11 @@ double GetMaxAngleViaEdgeConnection(
 }
 
 void ComputeVert2FacesAndEdge2Faces(
-  const Eigen::MatrixXd& V, const Eigen::MatrixXi& F,
+  const Eigen::MatrixXi& faces,
   std::map<std::pair<int, int>, std::vector<int>>& edge2Face,
   std::map<int, std::vector<int>>& vert2Face) {
-  for (int i=0; i < F.rows(); ++i) {
-    int v0 = F.row(i)[0], v1 = F.row(i)[1], v2 = F.row(i)[2];
+  for (int i = 0; i < faces.rows(); ++i) {
+    int v0 = faces.row(i)[0], v1 = faces.row(i)[1], v2 = faces.row(i)[2];
     if (v0 < v1)
       edge2Face[CEdge(v0, v1)].push_back(i);
     else
@@ -198,62 +213,60 @@ void ComputeVert2FacesAndEdge2Faces(
   }
 }
 
-void BuildPqp(PQP_Model* ptr, const Eigen::MatrixXd& V, const Eigen::MatrixXi& F) {
-  ptr->BeginModel();
+void BuildPqp(PQP_Model* pqp_model, const Eigen::MatrixXd& verts, const Eigen::MatrixXi& faces) {
+  pqp_model->BeginModel();
   PQP_REAL p1[3], p2[3], p3[3];	
-  for (int i = 0; i < F.rows(); i++) {
-    Eigen::Vector3i vertIdx = F.row(i);
+  for (int i = 0; i < faces.rows(); i++) {
+    Eigen::Vector3i vertIdx = faces.row(i);
     int vid0 = vertIdx[0], vid1 = vertIdx[1], vid2 = vertIdx[2];
-    p1[0] = (PQP_REAL)(V.row(vid0)[0]);
-    p1[1] = (PQP_REAL)(V.row(vid0)[1]);
-    p1[2] = (PQP_REAL)(V.row(vid0)[2]);
+    p1[0] = (PQP_REAL)(verts.row(vid0)[0]);
+    p1[1] = (PQP_REAL)(verts.row(vid0)[1]);
+    p1[2] = (PQP_REAL)(verts.row(vid0)[2]);
     
-    p2[0] = (PQP_REAL)(V.row(vid1)[0]);
-    p2[1] = (PQP_REAL)(V.row(vid1)[1]);
-    p2[2] = (PQP_REAL)(V.row(vid1)[2]);
+    p2[0] = (PQP_REAL)(verts.row(vid1)[0]);
+    p2[1] = (PQP_REAL)(verts.row(vid1)[1]);
+    p2[2] = (PQP_REAL)(verts.row(vid1)[2]);
     
-    p3[0] = (PQP_REAL)(V.row(vid2)[0]);
-    p3[1] = (PQP_REAL)(V.row(vid2)[1]);
-    p3[2] = (PQP_REAL)(V.row(vid2)[2]);
-    ptr->AddTri(p1, p2, p3, i);
+    p3[0] = (PQP_REAL)(verts.row(vid2)[0]);
+    p3[1] = (PQP_REAL)(verts.row(vid2)[1]);
+    p3[2] = (PQP_REAL)(verts.row(vid2)[2]);
+    pqp_model->AddTri(p1, p2, p3, i);
   }
-  ptr->EndModel();
+  pqp_model->EndModel();
 }
 
-double PqpAbsDist(PQP_Model* m_pqp_model, Eigen::Vector3d queryPnt,
-                    Eigen::Vector3d& nearestPnt, int& closestFaceIdx) {
-  PQP_DistanceResult dres;	PQP_REAL p[3];		int minTriIndex;
-  double minDist;
-  int closeTriIdx;
+double PqpAbsDist(PQP_Model* pqp_model, Eigen::Vector3d query_pnt,
+                  Eigen::Vector3d& nearest_pnt, int& closest_face_id) {
+  // Perform PQP query
+  PQP_DistanceResult result;
+  result.last_tri = pqp_model->last_tri;
+  PQP_REAL p[3];
+  p[0] = query_pnt[0];
+  p[1] = query_pnt[1];
+  p[2] = query_pnt[2];
+  PQP_Distance(&result, pqp_model, p, 0.0, 0.0);
 
-  dres.last_tri = m_pqp_model->last_tri;
-  p[0] = queryPnt[0];	p[1] = queryPnt[1];	p[2] = queryPnt[2];
-  PQP_Distance(&dres, m_pqp_model, p, 0.0, 0.0);
-  double closestPnt[3];
-  closestPnt[0] = dres.p1[0];	closestPnt[1] = dres.p1[1];	closestPnt[2] = dres.p1[2];
-  closeTriIdx = dres.last_tri->id;
-  minDist = dres.Distance();
+  // Retrieve results
+  closest_face_id = result.last_tri->id;
+  nearest_pnt = Eigen::Vector3d(result.p1[0], result.p1[1], result.p1[2]);
 
-  // pass result back
-  nearestPnt = Eigen::Vector3d(closestPnt[0], closestPnt[1], closestPnt[2]);
-  closestFaceIdx = closeTriIdx;
-
-  return minDist;
+  return result.Distance();
 }
 
 std::vector<double> Compute3psdfPerCell(
     const Eigen::MatrixXd& verts, const Eigen::MatrixXi& faces,
-    const std::vector<Eigen::Vector3d>& points, const std::pair<Eigen::Vector3d, Eigen::Vector3d>& cell,
+    const std::vector<Eigen::Vector3d>& points,
+    const std::pair<Eigen::Vector3d, Eigen::Vector3d>& cell,
     const int cell_id) {
-  int faceNum = faces.rows();
-  Eigen::Vector3d cc = cell.first;
-  Eigen::Vector3d length = cell.second;
+  int face_num = faces.rows();
+  Eigen::Vector3d cell_min = cell.first;
+  Eigen::Vector3d cell_size = cell.second;
   std::vector<int> included_faces;  // store all faces that intersect with the current cell
 
   // collect intersected face ids
-  for (int fid = 0; fid < faceNum; fid++) {
-    double cell_center[3] = {cc[0], cc[1], cc[2]};
-    double half_size[3] = {0.51 * length[0], 0.51 * length[1], 0.51 * length[2]};
+  for (int fid = 0; fid < face_num; fid++) {
+    double cell_center[3] = {cell_min[0], cell_min[1], cell_min[2]};
+    double half_size[3] = {0.5 * cell_size[0], 0.5 * cell_size[1], 0.5 * cell_size[2]};
     Eigen::Vector3i f = faces.row(fid);
     double tri_verts[3][3] = {{verts.row(f[0])[0], verts.row(f[0])[1], verts.row(f[0])[2]},
                               {verts.row(f[1])[0], verts.row(f[1])[1], verts.row(f[1])[2]},
@@ -264,61 +277,61 @@ std::vector<double> Compute3psdfPerCell(
     }
   }
 
-  std::vector<double> grid_dists; // output
+  std::vector<double> output_dists;  // output
 
   if (included_faces.size() == 0) {
     for (int x = 0; x < points.size(); x++) {
-      grid_dists.push_back(NAN);
+      output_dists.push_back(NAN);
     }
-    return grid_dists;
+    return output_dists;
   }
 
-  // reorder the included trianlge faces
+  // reorder the intersected/included trianlge faces
   Eigen::MatrixXi part_faces;
   Eigen::MatrixXd part_verts;
   ReorderMeshIndices(verts, faces, included_faces, part_verts, part_faces);
 
   // initialize PQP model
   PQP_Model* m_pqp_model = new PQP_Model();
-  BuildPqp(m_pqp_model, part_verts, part_faces); 
+  BuildPqp(m_pqp_model, part_verts, part_faces);
 
   std::map<std::pair<int, int>, std::vector<int>> part_edge2Face;
   std::map<int, std::vector<int>> part_vert2Face;
-  ComputeVert2FacesAndEdge2Faces(part_verts, part_faces, part_edge2Face, part_vert2Face);
+  ComputeVert2FacesAndEdge2Faces(part_faces, part_edge2Face, part_vert2Face);
 
-  Eigen::MatrixXd face_normals; // per face normal
-  igl::per_face_normals(part_verts, part_faces, Eigen::Vector3d(1,1,1).normalized(), face_normals);
+  Eigen::MatrixXd face_normals;
+  igl::per_face_normals(part_verts, part_faces, Eigen::Vector3d(1, 1, 1).normalized(), face_normals);
 
   // iterate over cell corners - compute its distance to the included faces
   // #pragma omp parallel for
   for (int k = 0; k < points.size(); k++) {
     const Eigen::Vector3d& pnt = points[k];
-    Eigen::Vector3d nearestPnt;
-    int closestTriID;
-    double dist = PqpAbsDist(m_pqp_model, pnt, nearestPnt, closestTriID);
-    Eigen::RowVector3d n = face_normals.row(closestTriID);
-    Eigen::Vector3d dir_org = pnt - nearestPnt;
+    Eigen::Vector3d nearest_pnt;
+    int closest_tri_id;
+    double dist = PqpAbsDist(m_pqp_model, pnt, nearest_pnt, closest_tri_id);
+    Eigen::RowVector3d n = face_normals.row(closest_tri_id);
+    Eigen::Vector3d dir_org = pnt - nearest_pnt;
     Eigen::Vector3d dir = dir_org.normalized();
 
     if (dist < 1e-10 || isnan(dir[0])) {
       dist = 0.0;
-      grid_dists.push_back(dist);
+      output_dists.push_back(dist);
       continue;
     }
     double eps = 1e-4;
     double dotprod = dir.dot(n);
-    if (abs(dotprod-1.0) < eps)
+    if (abs(dotprod - 1.0) < eps)
       dotprod = 1.0;
-    if (abs(dotprod+1.0) < eps)
+    if (abs(dotprod + 1.0) < eps)
       dotprod = -1.0;
     double angle = acos(dotprod) * 180.0 / PI;
 
     if (abs(dotprod - 1.0) < eps) {
       // in this case, the nearest point lies inside certain triangle
-      grid_dists.push_back(dist);
+      output_dists.push_back(dist);
       continue;
     } else if (abs(dotprod + 1.0) < eps) {
-      grid_dists.push_back(-dist);
+      output_dists.push_back(-dist);
       continue;
     } else {
       // barycentric coordinates
@@ -326,46 +339,47 @@ std::vector<double> Compute3psdfPerCell(
       double b = -1.0;
       double c = -1.0;
 
-      int vid0 = part_faces.row(closestTriID)[0], vid1 = part_faces.row(closestTriID)[1], vid2 = part_faces.row(closestTriID)[2];
+      int vid0 = part_faces.row(closest_tri_id)[0], vid1 = part_faces.row(closest_tri_id)[1], vid2 = part_faces.row(closest_tri_id)[2];
       Eigen::Vector3d v0 = part_verts.row(vid0);
       Eigen::Vector3d v1 = part_verts.row(vid1);
       Eigen::Vector3d v2 = part_verts.row(vid2);
-      Barycentric(nearestPnt, v0, v1, v2, a, b, c);
+      Barycentric(nearest_pnt, v0, v1, v2, a, b, c);
       float eps = 1e-4;
 
       if ( abs(a) < eps || abs(b) < eps || abs(c) < eps) {
-        // closest point lies on the edge
         double prod = -10;
-        if (abs(a-1.0) < eps ||  abs(b-1.0) < eps ||  abs(c-1.0) < eps) {
+        if (abs(a - 1.0) < eps || abs(b - 1.0) < eps ||  abs(c - 1.0) < eps) {
+          // closest point lies on the edge
           int vid = vid0;
           if (abs(b-1.0) < eps)
               vid = vid1;
           if (abs(c-1.0) < eps)
               vid = vid2;
-          prod = GetMaxAngleViaVertConnection(vid, dir, face_normals, part_vert2Face);
-          // prod = computeSignViaPseudonormal(vid, V, F, dir, face_normals, part_vert2Face);
+          prod = GetAngleViaVertConnection(vid, dir, face_normals, part_vert2Face);
+          // prod = GetAngleViaPseudonormal(vid, V, F, dir, face_normals, part_vert2Face);
         }else {
-          prod = GetMaxAngleViaEdgeConnection(a, b, c, closestTriID, dir, part_faces, face_normals, part_edge2Face);
+          // closest point lies on the vertex
+          prod = GetAngleViaEdgeConnection(a, b, c, closest_tri_id, dir, part_faces, face_normals, part_edge2Face);
         }
-        if (abs(prod-1.0) < eps)
+        if (abs(prod - 1.0) < eps)
           prod = 1.0;
-        if (abs(prod+1.0) < eps)
+        if (abs(prod + 1.0) < eps)
           prod = -1.0;
-        double finalAngle = acos(prod) * 180.0 / PI;
-        double newDist;
-        if (finalAngle < 90.0) {
-          newDist = dist;
+        double final_angle = acos(prod) * 180.0 / PI;
+        double final_dist;
+        if (final_angle < 90.0) {
+          final_dist = dist;
         } else {
-          newDist = -dist;
+          final_dist = -dist;
         }
-        grid_dists.push_back(newDist);
+        output_dists.push_back(final_dist);
       } else {
         // do not lie on the edge and the angle is not smaller than 90 degree
-        grid_dists.push_back(dist);
+        output_dists.push_back(dist);
       }
     }
   }
 
   delete m_pqp_model;
-  return grid_dists;
+  return output_dists;
 }
