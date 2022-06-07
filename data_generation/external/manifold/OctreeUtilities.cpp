@@ -144,7 +144,6 @@ void Model_OBJ::Build_Tree(int resolution)
 
 set<Octree*> Model_OBJ::GetEmptyCells(int resolution)
 {
-	cout << "building tree ...";
 	Calc_Bounding_Box();
 	tree = new Octree(min_corner, max_corner, face_indices, 0.01);
 	while (tree->number < resolution)
@@ -709,28 +708,7 @@ for (int iter = 0; iter < ITER_NUM; ++iter) {
 }
 
 
-vector<pair<Vector3d, Vector3d>> Model_OBJ::getTreeCells(
-    int resolution,
-    const Vector3d& bboxmin,
-    const Vector3d& bboxmax
-) {
-  vertices_buf = vertices;
-	face_indices_buf = face_indices;
-	Build_Tree(resolution, bboxmin, bboxmax);
-	vector<pair<Vector3d, Vector3d>> output;
-	int count=0;
-	tree->traverse(output, count);
-	return output;
-}
-
-vector<pair<Vector3d, Vector3d>> Model_OBJ::getBoundingCellsForQueryPnt(const RowVector3d& p) {
-  vector<pair<Vector3d, Vector3d>> output;
-  tree->getBoundingCellsForQueryPnt(p, output);
-
-  return output;
-}
-
-vector<pair<Vector3d, Vector3d>> Model_OBJ::get_tree_cells(int resolution, MatrixXd& cellCornerPts)
+vector<pair<Vector3d, Vector3d>> Model_OBJ::GetTreeCells(int resolution, MatrixXd& cellCornerPts)
 {
 	vertices_buf = vertices;
 	face_indices_buf = face_indices;
@@ -847,89 +825,11 @@ vector<pair<Vector3d, Vector3d>> Model_OBJ::getEmptyCells(int resolution, Matrix
 	return output;
 }
 
-// perform importance sampling on the obtained octree
-vector<Vector3d> Model_OBJ::generateImpSamples(int cellRes, int targetSampleNum)
-{
-	vector<pair<Vector3d, Vector3d>> cells;
-	MatrixXd cellCorners;
-	cells = get_tree_cells(cellRes, cellCorners);
-	int numPerCell = targetSampleNum / cells.size();
-	std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(0, 1); //uniform distribution between 0 and 1
-	vector<Vector3d> output;
-	cout << "Target sample number: " << targetSampleNum << " number of cells: " << cells.size() << " number per cell: " << numPerCell 
-			<< " round up total: " << numPerCell * cells.size() << " residue: " << targetSampleNum - numPerCell * cells.size() << endl;
-	for(int i=0; i < cells.size(); i++)
-	{
-		Vector3d min_corner = cells[i].first;
-		Vector3d length = cells[i].second;
-		for(int j = 0; j < numPerCell; j++)
-		{
-			double x = dis(gen), y = dis(gen), z = dis(gen);
-			// cout << x << " " << y << " " << z << endl;
-			Vector3d sample = min_corner +  length.cwiseProduct(Vector3d(x,y,z));
-			output.push_back(sample);
-		}
-	}
-	// make sure we get the target sample number
-	// if not, we distribute the residue to the first RES cells
-	
-	int res = targetSampleNum - numPerCell * cells.size();
-	if (res > 0)
-	{			
-		for(int i=0; i < res; ++i)
-		{
-			Vector3d min_corner = cells[i].first;
-			Vector3d length = cells[i].second;
-			double x = dis(gen), y = dis(gen), z = dis(gen);
-			// cout << x << " " << y << " " << z << endl;
-			Vector3d sample = min_corner + length.cwiseProduct(Vector3d(x,y,z));
-			output.push_back(sample);		
-		}	
-		
-	}
-	
-	return output;
-}
-
 void Model_OBJ::ReconOnGridPts(const MatrixXd& pts)
 {
 	vertices_buf = vertices;
 	face_indices_buf = face_indices;
 	Build_Tree(30000);
-//	Build_BVH();
-	// cout << "building tree ...";
-	// Calc_Bounding_Box();
-	// tree = new Octree(min_corner, max_corner, face_indices, 0.01);
-	// tree->splitUntilAllPointsContainedByEmptyNode(pts, vertices);
-
-	// tree->BuildConnection();
-	// tree->BuildExteriorEmptyConnection();
-
-	// list<Octree*> empty_list;
-	// set<Octree*> empty_set;
-	// for (int i = 0; i < 6; ++i)
-	// {
-	// 	tree->ExpandEmpty(empty_list, empty_set, i);
-	// }
-
-	// while ((int)empty_list.size() > 0)
-	// {
-	// 	Octree* empty = empty_list.front();
-	// 	empty->exterior = 1;
-	// 	for (list<Octree*>::iterator it = empty->empty_neighbors.begin();
-	// 		it != empty->empty_neighbors.end(); ++it)
-	// 	{
-	// 		if (empty_set.find(*it) == empty_set.end())
-	// 		{
-	// 			empty_list.push_back(*it);
-	// 			empty_set.insert(*it);
-	// 		}
-	// 	}
-	// 	empty_list.pop_front();
-	// }
-	// cout << "Done" << endl;
 
 	Construct_Manifold();
 	Project_Manifold();

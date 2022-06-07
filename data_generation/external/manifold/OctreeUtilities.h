@@ -45,20 +45,12 @@ class Model_OBJ
   int Load(string filename);	// Loads the model
 
   // get the octree leaf nodes 
-  // pair<Vector3d, Vector3d> : pair<min_cornor of the cell, the 3D length of the cell>
-  vector<pair<Vector3d, Vector3d>> getTreeCells(int resolution, const Vector3d& bboxmin, const Vector3d& bboxmax);
-  vector<pair<Vector3d, Vector3d>> getTreeCells(int resolution);
-  vector<pair<Vector3d, Vector3d>> get_tree_cells(int resolution, MatrixXd& cellCornerPts);
+  vector<pair<Vector3d, Vector3d>> GetTreeCells(int resolution, MatrixXd& cellCornerPts);
   vector<pair<Vector3d, Vector3d>> getOccupiedCells(int resolution, MatrixXd& cellCornerPts);
   vector<pair<Vector3d, Vector3d>> getEmptyCells(int resolution, MatrixXd& cellCornerPts);
   // return the cells that contain the query point
   vector<pair<Vector3d, Vector3d>> getBoundingCellsForQueryPnt(const RowVector3d& p);
 
-  // perform importance sampling on the obtained octree
-  // [param] - cellRes: number of Octree child cells we want to create
-  // [param] - targetSampleNum: target number of sampling points
-  // return: a vector of 3D sampling points based on importance sampling around the surface
-  vector<Vector3d> generateImpSamples(int cellRes, int targetSampleNum);
   set<Octree*> inOrOutTest(const MatrixXd& pts, vector<double>& outputSign, const vector<Vector3d>& legPoints);
   set<Octree*> BuildTreeGridPts(const MatrixXd& pts, vector<double>& outputSign);
   void ReconOnGridPts(const MatrixXd& pts);

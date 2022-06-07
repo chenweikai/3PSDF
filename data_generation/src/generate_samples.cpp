@@ -47,7 +47,7 @@ struct CompareVector3d {
 //               for each cell, pair.first - min corner; pair.second - max corner
 // @param verts: the output vertices
 // @param faces: the output faces, each face contains 8 vertice ids
-void build_octree_vert_face_connection(
+void BuildOctreeVertFaceConnection(
     const vector<pair<Vector3d, Vector3d>>& cells,
     vector<Vector3d>& verts,
     vector<vector<int>>& faces) {
@@ -90,7 +90,7 @@ void build_octree_vert_face_connection(
 // @param faces: the input octree faces
 //
 // return: mapping from vertex (id) to the ids of faces that it connects to
-map<Vector3d, vector<int>, CompareVector3d> build_octree_vert2face_map(
+map<Vector3d, vector<int>, CompareVector3d> BuildOctreeVert2FaceMap(
     const vector<Vector3d>& verts,
     const vector<vector<int>>& faces) {
   map<Vector3d, vector<int>, CompareVector3d> vert_to_face;
@@ -178,14 +178,14 @@ void generate_octree_3psdf_samples(
   MatrixXd cellCornerPts;
   // uncommnet the following line if you are using a specified bounding box
   // obj.setBBox(glm::dvec3(-0.65, -1, -0.16), glm::dvec3(0.65, 0.8, 0.16));
-  cells = obj.get_tree_cells(octreeDepth, cellCornerPts);
+  cells = obj.GetTreeCells(octreeDepth, cellCornerPts);
   std::cout << "cell number: " << cells.size() << std::endl;
 
   // extract vertices, faces and vert-to-face mapping from octree cells
   vector<Vector3d> octree_verts;
   vector<vector<int>> octree_faces;
-  build_octree_vert_face_connection(cells, octree_verts, octree_faces);
-  map<Vector3d, vector<int>, CompareVector3d> vert_to_face = build_octree_vert2face_map(octree_verts, octree_faces);
+  BuildOctreeVertFaceConnection(cells, octree_verts, octree_faces);
+  map<Vector3d, vector<int>, CompareVector3d> vert_to_face = BuildOctreeVert2FaceMap(octree_verts, octree_faces);
 
   // load obj mesh and remove the duplicated vertices
   Eigen::MatrixXd V;
@@ -285,25 +285,6 @@ void generate_octree_3psdf_samples(
       }
     }
 
-    // reconstruct the computed L3PSDF
-    // MatrixXd GV(grid_size[0]*grid_size[1]*grid_size[2], 3);	    // GV to store grid query points
-    // VectorXd finalS(grid_size[0]*grid_size[1]*grid_size[2], 1);  // final vector to stored computed distance values
-
-    // std::cout << "Before initializing GV" << std::endl;
-    // for(int x = 0; x< grid_size[0]; x++) {
-    //   const double xi = x * min_grid_width + bmin(0);
-    //   for(int y = 0; y < grid_size[1]; y++) {
-    //     const double yi = y * min_grid_width + bmin(1);
-    //     for(int z = 0; z < grid_size[2]; z++) {
-    //       const double zi = z * min_grid_width + bmin(2);
-    //       GV.row(x+grid_size(0)*(y + grid_size(1)*z)) = RowVector3d(xi,yi,zi);
-    //     }
-    //   }
-    // }
-    // MatrixXd SV1;
-    // MatrixXi SF1;
-    // igl::copyleft::marching_cubes(final_dist, points, grid_size(0), grid_size(1), grid_size(2), SV1, SF1);
-
     // reconstruct using localized marching cubes
     localized_marching_cubes(reconObjName, octree_verts, octree_faces, final_dist);
     string truncated_obj_name = reconObjName.substr(0, reconObjName.size() - 4);
@@ -343,8 +324,8 @@ void generate_octree_3psdf_samples(
 }
 
 int main(int argc, char** argv){
-  if (argc < 8){
-      std::cout << "usage: ./genOctreeL3PSDFSamples input.obj output.sdf recon_obj.obj output_samples.ply octree_depth [default=5] flag_writePLY flag_writeOBJ flag_writeSDF" << std::endl;
+  if (argc < 9){
+      std::cout << "usage: ./gen_3psdf_samples input.obj output.sdf recon_obj.obj output_samples.ply octree_depth [default=8] flag_writePLY flag_writeOBJ flag_writeSDF" << std::endl;
   }
 
   string objName = "../data/soldier_fight.obj";
@@ -361,7 +342,7 @@ int main(int argc, char** argv){
   int writePLY = 1;
   int writeOBJ = 1;
   int writeSDF = 0;
-  int octreeDepth = 3;
+  int octreeDepth = 9;
   for(int i = 1; i < argc; ++i){
     if (i == 1)
         objName = argv[i];
