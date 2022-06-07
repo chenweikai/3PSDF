@@ -14,9 +14,9 @@ This repository contains the code for "[3PSDF: Three-Pole Signed Distance Functi
 
 ## Introduction
 
-3-Pole Signed Distance Function (3PSDF) is a learnable implicit representation that is capable of representing surfaces with arbitrary topologies, including open surfaces. Unlike unsiged distance functions, 3PSDF can be easily converted into mesh using the classic iso-surface extraction technique, e.g. the Marching Cubes algorithm. 3PSDF can be learned in a manner as simple as 3-way classification, which only requires a light change for existing frameworks based on occupancy prediction. 
+3-Pole Signed Distance Function (3PSDF) is a learnable implicit representation that is capable of representing surfaces with arbitrary topologies, including open surfaces. Unlike unsiged distance functions, 3PSDF can be easily converted into mesh using the classic iso-surface extraction technique, e.g. the Marching Cubes algorithm. 3PSDF can be learned in a manner as simple as 3-way classification, which only requires a slight change for existing frameworks based on occupancy prediction. 
 
-This code repository currently contains two parts of code: (1) C++ code for computing 3PSDF and corresponding samples for training from an input mesh, and (2) Python code for training single-view reconstruction using 3PSDF.
+This code repository currently contains two parts of code: (1) C++ code for computing 3PSDF of an input mesh and the corresponding sample data for network training, and (2) Python code for training single-view reconstruction using 3PSDF.
 
 ## Install
 
