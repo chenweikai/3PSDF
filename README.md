@@ -2,7 +2,10 @@
 
 This repository contains the code for "[3PSDF: Three-Pole Signed Distance Function for Learning Surfaces with Arbitrary Topologies](https://arxiv.org/abs/2205.15572)" (CVPR 2022) by [Weikai Chen](http://chenweikai.github.io/), [Cheng Lin](https://clinplayer.github.io/), Weiyang Li and [Bo Yang](https://sites.google.com/site/boyanghome/home). The project page can be found [here](http://chenweikai.github.io/projects/proj_cvpr22_3psdf.html).
 
-![alt text](https://github.com/chenweikai/3PSDF/blob/master/3psdf_teaser.jpg?raw=true)
+<!-- 
+![alt text](https://github.com/chenweikai/3PSDF/blob/master/images/3psdf_teaser.jpg?raw=true) -->
+
+<img src="https://raw.githubusercontent.com/chenweikai/3PSDF/master/images/3psdf_teaser.png" width="60%">
 
 ## Contents
 
