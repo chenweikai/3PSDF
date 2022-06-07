@@ -155,20 +155,20 @@ void localized_marching_cubes(
 // @param flag_write_ply: flag of whether to output the sampling points to PLY file for visualization
 // @param flag_recon_obj: flag of whether to reconstruct the mesh from the computed L3PSDF field
 // @param flag_write_sdf: flag of whether to output SDF file
-void generate_octree_3psdf_samples(
-    string objName,
-    string outSDFName,
-    string reconObjName,
+void GenerateOctree3psdfSamples(
+    string input_obj_name,
+    string out_sdf_name,
+    string recon_obj_name,
     string output_pts_name,
-    int octreeDepth,
+    int octree_depth,
     bool flag_write_ply,
     bool flag_recon_obj,
     bool flag_write_sdf) {
-
   auto start = std::chrono::high_resolution_clock::now();
+
   // compute octree cells
   Model_OBJ obj;
-  int sucess = obj.Load(objName);
+  int sucess = obj.Load(input_obj_name);
   if (sucess != 0) {
     std::cout << "Failed to load the input mesh! Quit!" << std::endl;
     exit(0);
@@ -178,7 +178,7 @@ void generate_octree_3psdf_samples(
   MatrixXd cellCornerPts;
   // uncommnet the following line if you are using a specified bounding box
   // obj.setBBox(glm::dvec3(-0.65, -1, -0.16), glm::dvec3(0.65, 0.8, 0.16));
-  cells = obj.GetTreeCells(octreeDepth, cellCornerPts);
+  cells = obj.GetTreeCells(octree_depth, cellCornerPts);
   std::cout << "cell number: " << cells.size() << std::endl;
 
   // extract vertices, faces and vert-to-face mapping from octree cells
@@ -190,7 +190,7 @@ void generate_octree_3psdf_samples(
   // load obj mesh and remove the duplicated vertices
   Eigen::MatrixXd V;
   Eigen::MatrixXi F;
-  igl::readOBJ(objName,V,F);
+  igl::readOBJ(input_obj_name,V,F);
   MatrixXi newF;
   RemoveIdenticalVerts(F, newF);
   F = newF;
@@ -265,7 +265,7 @@ void generate_octree_3psdf_samples(
 
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); 
-  std::cout << "Computing L3PSDF at depth " << octreeDepth << " Used time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;
+  std::cout << "Computing L3PSDF at depth " << octree_depth << " Used time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;
   std::cout << "number of inside : outside : nan = " << inside_cnt << " ： " << outside_cnt << " : " << nan_cnt << std::endl;
   std::cout << "ratio of inside : outside : nan = " << 1.0 << " ： " << double(outside_cnt) / inside_cnt << " : " << double(nan_cnt) / inside_cnt << std::endl;
 
@@ -286,8 +286,8 @@ void generate_octree_3psdf_samples(
     }
 
     // reconstruct using localized marching cubes
-    localized_marching_cubes(reconObjName, octree_verts, octree_faces, final_dist);
-    string truncated_obj_name = reconObjName.substr(0, reconObjName.size() - 4);
+    localized_marching_cubes(recon_obj_name, octree_verts, octree_faces, final_dist);
+    string truncated_obj_name = recon_obj_name.substr(0, recon_obj_name.size() - 4);
     // reconstruct truncated field which is the GT for deep learning
     truncated_obj_name += "_truncated.obj";
     localized_marching_cubes(truncated_obj_name, octree_verts, octree_faces, truncated_dist);
@@ -307,7 +307,7 @@ void generate_octree_3psdf_samples(
   // output the generated 3-pole signed distance field into a .sdf file
   if (flag_write_sdf) {
     // write into txt format
-    ofstream fout(outSDFName);
+    ofstream fout(out_sdf_name);
     fout << final_dist.size() << std::endl;
     for(int i=0; i < final_dist.size(); ++i) {
       int label = 1;  // outside
@@ -319,13 +319,13 @@ void generate_octree_3psdf_samples(
            << " " << label << " " << final_dist[i] << std::endl; 
     }
     fout.close();
-    std::cout << "Finished writing the samples into " << outSDFName << "!" << std::endl;
+    std::cout << "Finished writing the samples into " << out_sdf_name << "!" << std::endl;
   }
 }
 
 int main(int argc, char** argv){
   if (argc < 9){
-      std::cout << "usage: ./gen_3psdf_samples input.obj output.sdf recon_obj.obj output_samples.ply octree_depth [default=8] flag_writePLY flag_writeOBJ flag_writeSDF" << std::endl;
+      std::cout << "usage: ./gen_3psdf_samples input.obj output.sdf recon_obj.obj output_samples.ply octree_depth [default=8] flag_writeSDF flag_writeOBJ flag_writePLY" << std::endl;
   }
 
   string objName = "../data/soldier_fight.obj";
@@ -341,7 +341,7 @@ int main(int argc, char** argv){
 
   int writePLY = 1;
   int writeOBJ = 1;
-  int writeSDF = 0;
+  int writeSDF = 1;
   int octreeDepth = 9;
   for(int i = 1; i < argc; ++i){
     if (i == 1)
@@ -355,11 +355,11 @@ int main(int argc, char** argv){
     if (i == 5)
         sscanf(argv[i], "%d", &octreeDepth);
     if (i == 6)
-        sscanf(argv[i], "%d", &writePLY);
+        sscanf(argv[i], "%d", &writeSDF);
     if (i == 7)
         sscanf(argv[i], "%d", &writeOBJ);
     if (i == 8)
-        sscanf(argv[i], "%d", &writeSDF);
+        sscanf(argv[i], "%d", &writePLY);
   }
 
   bool flag_writePLY = true; // flag of whether to dump the sampling points into .ply file
@@ -377,7 +377,7 @@ int main(int argc, char** argv){
   std::cout << "Current setting: ./genOctreeL3PSDFSamples " << objName << " " << outSDFName << " " << reconObjName << " " << output_pts_name << " "
       << octreeDepth << " " << flag_writePLY  << " " << flag_reconObj  << " " << flag_writeSDF << std::endl;
 
-  generate_octree_3psdf_samples(objName, outSDFName, reconObjName, output_pts_name, octreeDepth, flag_writePLY, flag_reconObj, flag_writeSDF);
+  GenerateOctree3psdfSamples(objName, outSDFName, reconObjName, output_pts_name, octreeDepth, flag_writePLY, flag_reconObj, flag_writeSDF);
 
   return 1;
 }
