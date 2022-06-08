@@ -9,11 +9,15 @@
     #include <Eigen/Core>
 #endif
 
-// Perform marching cubes on each octree cells and merge the local meshes into a global one
-void localized_marching_cubes(
-    std::string output_obj_name,
-    const std::vector<Eigen::Vector3d>& verts,
-    const std::vector<std::vector<int>>& faces,
+// Perform marching cubes on each octree cells and merge the local meshes into a global one.
+//
+// @param octree_verts: the file name of the output SDF file
+// @param reconObjName: the file name of the output reconstructed mesh
+// @param output_pts_name: the file name of the saved sampling points
+// @param octreeDepth: octree depth for computing the L3PSDF
+std::pair<Eigen::MatrixXd, Eigen::MatrixXi> localized_marching_cubes(
+    const std::vector<Eigen::Vector3d>& octree_verts,
+    const std::vector<std::vector<int>>& octree_faces,
     const std::vector<double>& distances);
 
 // Generate 3PSDF samples that are the vertices of the octree

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "generate_samples.cpp"
+#include "compute_3psdf_samples.h"
 
 namespace fs = std::experimental::filesystem;
 

@@ -42,11 +42,16 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 # Add executable to build
 add_executable(batch_generate
   ${PROJECT_DIR}/src/batch_generate.cpp
+  ${PROJECT_DIR}/src/lib/dist_compute.cpp
+  ${PROJECT_DIR}/src/lib/compute_3psdf_samples.cpp
+  ${PROJECT_DIR}/src/lib/utilities.cpp ${PQP_FILES} ${MANIFOLD_FILES}
 )
 target_link_libraries(batch_generate stdc++fs)
 
 add_executable(gen_3psdf_samples
-  ${PROJECT_DIR}/src/generate_samples.cpp ${PROJECT_DIR}/src/lib/dist_compute.cpp
+  ${PROJECT_DIR}/src/generate_samples.cpp
+  ${PROJECT_DIR}/src/lib/dist_compute.cpp
+  ${PROJECT_DIR}/src/lib/compute_3psdf_samples.cpp
   ${PROJECT_DIR}/src/lib/utilities.cpp ${PQP_FILES} ${MANIFOLD_FILES}
 )
 target_link_libraries(gen_3psdf_samples PRIVATE "${OpenMP_CXX_FLAGS}" stdc++fs igl::core)

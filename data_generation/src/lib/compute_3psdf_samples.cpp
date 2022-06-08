@@ -95,31 +95,30 @@ map<Eigen::Vector3d, std::vector<int>, CompareVector3d> BuildOctreeVert2FaceMap(
   return vert_to_face;
 }
 
-void localized_marching_cubes(
-    std::string output_obj_name,
-    const std::vector<Eigen::Vector3d>& verts,
-    const std::vector<std::vector<int>>& faces,
+std::pair<Eigen::MatrixXd, Eigen::MatrixXi>  localized_marching_cubes(
+    const std::vector<Eigen::Vector3d>& octree_verts,
+    const std::vector<std::vector<int>>& octree_faces,
     const std::vector<double>& distances) {
   std::vector<pair<Eigen::MatrixXd, Eigen::MatrixXi>> mesh_parts;
-  for (int i = 0; i < faces.size(); i++) {
+  for (int i = 0; i < octree_faces.size(); i++) {
     Eigen::VectorXd local_dist(8, 1);
     Eigen::MatrixXd cell_corners(8, 3);
     bool null_cell = false;
     for (int j = 0; j < 8; j++) {
-      local_dist(j) = distances[faces[i][j]];
+      local_dist(j) = distances[octree_faces[i][j]];
       if (isnan(local_dist(j))) {
         null_cell = true;
         break;
       }
-      cell_corners.row(j) = verts[faces[i][j]].transpose();
+      cell_corners.row(j) = octree_verts[octree_faces[i][j]].transpose();
     }
     if (null_cell)
       continue;
 
     Eigen::MatrixXd points(8, 3);
     for (int j = 0; j < 8; j++) {
-      local_dist(j) = distances[faces[i][j]];
-      points.row(j) = verts[faces[i][j]].transpose();
+      local_dist(j) = distances[octree_faces[i][j]];
+      points.row(j) = octree_verts[octree_faces[i][j]].transpose();
     }
     Eigen::MatrixXd part_verts;
     Eigen::MatrixXi part_faces;
@@ -131,8 +130,8 @@ void localized_marching_cubes(
   Eigen::MatrixXd total_verts;
   Eigen::MatrixXi total_faces;
   AssembleMeshParts(mesh_parts, total_verts, total_faces);
-  SaveObjMesh(output_obj_name, total_verts, total_faces);
-  std::cout << "Finished writing the reconstructed mesh into " << output_obj_name << "!" << std::endl;
+
+  return std::make_pair(total_verts, total_faces);
 }
 
 // Generate 3PSDF samples that are the vertices of the octree
@@ -276,11 +275,16 @@ void GenerateOctree3psdfSamples(
     }
 
     // reconstruct using localized marching cubes
-    localized_marching_cubes(recon_obj_name, octree_verts, octree_faces, final_dist);
+    auto recon_result = localized_marching_cubes(octree_verts, octree_faces, final_dist);
+    SaveObjMesh(recon_obj_name, recon_result.first, recon_result.second);
+    std::cout << "Finished writing the reconstructed mesh into " << recon_obj_name << "!" << std::endl;
+
     std::string truncated_obj_name = recon_obj_name.substr(0, recon_obj_name.size() - 4);
     // reconstruct truncated field which is the GT for deep learning
     truncated_obj_name += "_truncated.obj";
-    localized_marching_cubes(truncated_obj_name, octree_verts, octree_faces, truncated_dist);
+    auto truncated_recon_result = localized_marching_cubes(octree_verts, octree_faces, truncated_dist);
+    SaveObjMesh(truncated_obj_name, recon_result.first, recon_result.second);
+    std::cout << "Finished writing the reconstructed mesh into " << truncated_obj_name << "!" << std::endl;
   }
 
   // output the 3D sampling points to PLY
