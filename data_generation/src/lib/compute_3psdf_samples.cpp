@@ -280,11 +280,11 @@ void GenerateOctree3psdfSamples(
     std::cout << "Finished writing the reconstructed mesh into " << recon_obj_name << "!" << std::endl;
 
     std::string truncated_obj_name = recon_obj_name.substr(0, recon_obj_name.size() - 4);
-    // reconstruct truncated field which is the GT for deep learning
+    // reconstruct truncated field (filled with discrete 0, 1 or nan labels) which is the GT for 3-way classification
     truncated_obj_name += "_truncated.obj";
     auto truncated_recon_result = localized_marching_cubes(octree_verts, octree_faces, truncated_dist);
-    SaveObjMesh(truncated_obj_name, recon_result.first, recon_result.second);
-    std::cout << "Finished writing the reconstructed mesh into " << truncated_obj_name << "!" << std::endl;
+    SaveObjMesh(truncated_obj_name, truncated_recon_result.first, truncated_recon_result.second);
+    std::cout << "Finished writing the reconstructed truncated mesh into " << truncated_obj_name << "!" << std::endl;
   }
 
   // output the 3D sampling points to PLY
