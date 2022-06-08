@@ -8,16 +8,16 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+#include "generate_samples.cpp"
+
 namespace fs = std::experimental::filesystem;
 
-
 int main(int argc, char** argv){
-  string input_data_dir = "../data";
-  string out_sdf_dir = "../output/SDF";
-  string out_recon_obj_dir = "../output/OBJ";
-  string out_recon_ply_dir = "../output/PLY";
-  string todo_filename = "../data/todo.txt";  // a txt file containing the names of the subjects to be computed
+  std::string input_data_dir = "../data";
+  std::string out_sdf_dir = "../output/SDF";
+  std::string out_recon_obj_dir = "../output/OBJ";
+  std::string out_recon_ply_dir = "../output/PLY";
+  std::string todo_filename = "../data/todo.txt";  // a txt file containing the names of the subjects to be computed
 
   int octree_depth = 9;
   int write_ply = 0;
@@ -49,10 +49,10 @@ int main(int argc, char** argv){
         sscanf(argv[i], "%d", &write_ply);
   }
 
-  std::vector<string> todo_list;
-  ifstream fin;
+  std::vector<std::string> todo_list;
+  std::ifstream fin;
   fin.open(todo_filename);
-  string name;
+  std::string name;
   while (fin >> name) {
     todo_list.push_back(name);
   }
@@ -86,23 +86,18 @@ int main(int argc, char** argv){
   // process according to the todo list
   for (int i = 0; i < todo_list.size(); i++) {
     std::cout << std::endl << "Processing " << i + 1  << "/" << todo_list.size() << " ..." << std::endl;
-    string subject = todo_list[i];
-    string obj_name = input_data_dir + "/" + subject + ".obj";
-    std::cout << "Computing " << obj_name << std::endl;
-    if (!fs::exists(obj_name)) {
-      std::cout << "Does NOT exist file: " << obj_name << "!" << std::endl;
+    std::string subject = todo_list[i];
+    std::string input_obj_name = input_data_dir + "/" + subject + ".obj";
+    std::cout << "Computing " << input_obj_name << std::endl;
+    if (!fs::exists(input_obj_name)) {
+      std::cout << "Does NOT exist file: " << input_obj_name << "!" << std::endl;
       continue;
     }
 
-    string sdf_name = out_sdf_dir + "/" + subject + ".sdf";  
-    string recon_obj_name =  out_recon_obj_dir + "/" + subject + ".obj";
-    string output_ply_name = out_recon_obj_dir + "/" + subject + ".ply";
+    std::string sdf_name = out_sdf_dir + "/" + subject + ".sdf";  
+    std::string recon_obj_name =  out_recon_obj_dir + "/" + subject + ".obj";
+    std::string output_ply_name = out_recon_obj_dir + "/" + subject + ".ply";
 
-    stringstream ss;
-    ss << "./gen_3psdf_samples " << obj_name << " " << sdf_name << " " << recon_obj_name << " " << output_ply_name << " "
-         << octree_depth << " " << write_sdf << " " << write_obj << " " << write_ply << std::endl;
-    string command = ss.str();
-    std::cout << "executing command: " << command << std::endl;
-    system(command.c_str());
+    GenerateOctree3psdfSamples(input_obj_name, sdf_name, recon_obj_name, output_ply_name, octree_depth, write_ply, write_obj, write_sdf);
   }
 }
