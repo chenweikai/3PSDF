@@ -5,7 +5,7 @@ import argparse
 from skimage import measure
 import tensorflow as tf
 from tqdm import tqdm
-from src.model.dataLoader import Dataloader
+from model.dataLoader import Dataloader
 from src.utils.io_utils import save_obj_mesh_filterNAN, load_filelist
 from src.utils.transform_utils import getShapenetBbox, computeOctreeSamplingPointsFromBoundingBox
 
@@ -42,7 +42,7 @@ def sampleImpField(model, images, samples, cameras, grid_size, batch_size, point
     :param model: trained model
     :param images: input images
     :param samples: sampling point positions for evaluation
-    :param cameras: camera matrix
+    :param cameras: camera parameters
     :param grid_size: xyz length of the sampling voxel grids
     :param batch_size: the number of shapes in one batch
     :param level_value: iso value for marching cubes algorithm
