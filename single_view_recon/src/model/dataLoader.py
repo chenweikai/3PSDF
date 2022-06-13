@@ -155,7 +155,7 @@ class Dataloader:
                 xyz = xyz[sample_indices]
                 flags = flags[sample_indices]
 
-                print('Batch data:', 'category', cat, 'name', fn, 'view', view_id)
+                # print('Batch data:', 'category', cat, 'name', fn, 'view', view_id)
 
                 # pack all the data for batch training
                 xyz_batch.append(xyz[None, :])
