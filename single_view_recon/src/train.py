@@ -9,7 +9,6 @@ from src.model.network import DeepImpNet
 from src.utils.io_utils import load_filelist
 
 
-# 3DReconstruction_shapenet_mb
 def parse_args():
     parser = argparse.ArgumentParser(description='3PSDF_train')
     parser.add_argument('--sdf_dir', type=str, default='data/sdf-depth7-tfrecord/',

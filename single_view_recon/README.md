@@ -40,8 +40,8 @@ python -m src.test
 
 ## Data & Download 
 To run the code:
-* Train/test data (in TFRecord format): [data.zip](https://connecthkuhk-my.sharepoint.com/:f:/g/personal/chlin_connect_hku_hk/Eumlg1Wr9NNPoCYCp2lW1rAB-jptB_EiABrjDj4sMZEYsQ?e=yGVM8h).
-* Pre-trained model: [weights.zip](https://connecthkuhk-my.sharepoint.com/:f:/g/personal/chlin_connect_hku_hk/EvqZNm7ns_1An17j7ui7TigBHMbnzWW4u7UOnvCrR7NePA?e=65iurs).
+* Train/test data (in TFRecord format): [data](https://connecthkuhk-my.sharepoint.com/:f:/g/personal/chlin_connect_hku_hk/Eumlg1Wr9NNPoCYCp2lW1rAB-jptB_EiABrjDj4sMZEYsQ?e=yGVM8h).
+* Pre-trained model: [weights](https://connecthkuhk-my.sharepoint.com/:f:/g/personal/chlin_connect_hku_hk/EvqZNm7ns_1An17j7ui7TigBHMbnzWW4u7UOnvCrR7NePA?e=65iurs).
 
 To obtain the raw data:
 * Raw ShapeNet meshes with consistent normals: [shapenet_consistent_normal.zip](https://connecthkuhk-my.sharepoint.com/:u:/g/personal/chlin_connect_hku_hk/EX6nk1bMAyJJhGMm8avoyIsBYyEir82jIzFTGjTAforlyQ?e=DQ4N8V)
