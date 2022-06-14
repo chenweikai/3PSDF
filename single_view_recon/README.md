@@ -15,7 +15,7 @@ horovod==0.23.0
 
 ### Training
 
-* Example command with required parameters to indicate the data folder:
+* Example command with required parameters to indicate the data folders:
 ```
 horovodrun -np 2 python -m src.train
   --sdf_dir data/sdf-depth7-tfrecord
@@ -27,7 +27,7 @@ horovodrun -np 2 python -m src.train
 * See `python -m src.train --help` for all the detailed training options.
 
 ### Testing
-* Example command with required parameters to indicate the data folder and pre-trained model:
+* Example command with required parameters to indicate the data folders and pre-trained model:
 ```
 python -m src.test
   --sdf_dir data/sdf-depth7-tfrecord

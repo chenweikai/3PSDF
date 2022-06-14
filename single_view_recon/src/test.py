@@ -9,7 +9,6 @@ from model.dataLoader import Dataloader
 from src.utils.io_utils import save_obj_mesh_filterNAN, load_filelist
 from src.utils.transform_utils import getShapenetBbox, computeOctreeSamplingPointsFromBoundingBox
 
-
 def parse_args():
     parser = argparse.ArgumentParser(description='3PSDF_test')
     parser.add_argument('--sdf_dir', type=str, default='data/sdf-depth7-tfrecord/',
@@ -26,9 +25,9 @@ def parse_args():
     parser.add_argument('--point_num', type=int, default=20000,
                         help='number of point samples for a single model')
     parser.add_argument('--octree_depth', type=int, default=8,
-                        help='octree depth that is consistent with the training data')
+                        help='sampling density in the implicit field')
     parser.add_argument('--load_model_path', type=str, default='weights/3psdf_svr_weights',
-                        help='path to save the trained model')
+                        help='path to load the pre-trained model')
     parser.add_argument('--save_result_path', type=str, default='output/',
                         help='path to save the reconstructed meshes')
     args = parser.parse_args()

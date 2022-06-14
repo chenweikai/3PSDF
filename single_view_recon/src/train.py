@@ -41,7 +41,7 @@ def parse_args():
     parser.add_argument('--is_finetune', type=int, default=0,
                         help='1 - finetune the network, 0 - train the network from scratch')
     parser.add_argument('--model_weights_file', type=str, default='weights/3psdf_svr_weights',
-                        help='path to the pretrained weights, only used if is_finetune is set to 1')
+                        help='path to load the pretrained weights, only used if is_finetune is set to 1')
     args = parser.parse_args()
 
     return args
