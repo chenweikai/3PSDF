@@ -1,6 +1,9 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-from tensorflow.keras.layers import Conv1D, Conv2D, ReLU, BatchNormalization
+"""Class definition of point convolutional network for extracting 3D point features."""
+
+
+from tensorflow.keras.layers import Conv1D, ReLU, BatchNormalization
 from tensorflow.keras import Model
+
 
 class PointConv(Model):
     def __init__(self):

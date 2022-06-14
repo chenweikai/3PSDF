@@ -1,6 +1,9 @@
-import os
+"""Utility functions for I/O."""
+
 from collections import defaultdict
 from math import isnan
+import os
+
 
 def walklevel(input_dir, depth=1, is_folder=False):
     stuff = os.path.abspath(os.path.expanduser(os.path.expandvars(input_dir)))

@@ -1,13 +1,19 @@
+
+"""Code for testing pretrained model."""
+
+import copy
 import numpy as np
 import os
-import copy
+
 import argparse
 from skimage import measure
 import tensorflow as tf
 from tqdm import tqdm
+
 from model.dataLoader import Dataloader
 from src.utils.io_utils import save_obj_mesh_filterNAN, load_filelist
 from src.utils.transform_utils import getShapenetBbox, computeOctreeSamplingPointsFromBoundingBox
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='3PSDF_test')

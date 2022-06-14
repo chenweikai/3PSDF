@@ -1,11 +1,12 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+"""Implementation of image encoder."""
+
+
 from tensorflow.keras import layers, models, Input
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropout, ReLU, BatchNormalization, GlobalAveragePooling2D
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, ReLU, BatchNormalization, GlobalAveragePooling2D
 
 
 def ImageEncoder():
-
     input_image = Input(shape=(224, 224, 4))
 
     # Block1

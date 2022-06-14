@@ -1,9 +1,13 @@
+"""Training code."""
+
 import datetime
-import os
-import tensorflow as tf
 import random
+import os
+
 import argparse
 import horovod.tensorflow as hvd
+import tensorflow as tf
+
 from src.model.dataLoader import Dataloader
 from src.model.network import DeepImpNet
 from src.utils.io_utils import load_filelist

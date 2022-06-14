@@ -1,9 +1,13 @@
+"""Definition of main network for image-based 3D reconstruction using 3PSDF."""
+
 import tensorflow as tf
 from tensorflow.keras import Model
+
+from src.model.imgEncoder import ImageEncoder
 from src.model.mlpClassifier import Classifier
 from src.model.pointConv import PointConv
 from src.utils.transform_utils import grid_sample
-from src.model.imgEncoder import ImageEncoder
+
 
 class DeepImpNet(Model):
     def __init__(self):
@@ -24,7 +28,6 @@ class DeepImpNet(Model):
         :param f: derived from the intrinsic parameters K
         :return uv: [Nv, N, 3] xyz coordinates for each point on multiview images
         '''
-
         point_num = pts.shape[1]
 
         #parse camera
@@ -35,7 +38,6 @@ class DeepImpNet(Model):
         cam_pos = tf.convert_to_tensor(cam_pos, tf.float32)
         cam_rot = tf.convert_to_tensor(cam_rot, tf.float32)
         cam_K = tf.convert_to_tensor(cam_K, tf.float32)
-
         cam_pos = tf.tile(cam_pos, [1, point_num, 1])
 
         # projection
@@ -75,7 +77,6 @@ class DeepImpNet(Model):
         :param camera_dict:  A dict contains camera matrices, cam_rot [B,3,3], cam_pos [B,1,3], cam_K [B,3,3]
         :return [B, N, 3] possibility of 3-way classification
         '''
-
         # transfer sampled points from world coordinates to image coordinates
         img_xyz = self.projection_shapenet(pts, camera_dict)
         point_num = pts.shape[1]

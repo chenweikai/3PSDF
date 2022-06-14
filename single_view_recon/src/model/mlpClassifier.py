@@ -1,6 +1,8 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+"""Define classifiers based on MLP layers."""
+
+
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, Dropout, BatchNormalization, ReLU
+from tensorflow.keras.layers import Dense, BatchNormalization, ReLU
 from tensorflow.keras import Model
 
 

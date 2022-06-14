@@ -1,15 +1,21 @@
+"""Dataloder class for generating and loading tfrecord data for trainign and testing"""
+
+
+from collections import defaultdict
 import glob
 import math
 import numpy as np
 import os
+import random
 import sys
 import timeit
-import random
-from collections import defaultdict
+
 import tensorflow as tf
 from tqdm import tqdm
+
 from src.utils.io_utils import walklevel
 from src.utils.transform_utils import getBlenderProj, getShapenetRot
+
 
 class Dataloader:
     def __init__(self):
@@ -154,8 +160,6 @@ class Dataloader:
                     sample_indices = np.random.choice(xyz.shape[0], point_num)
                 xyz = xyz[sample_indices]
                 flags = flags[sample_indices]
-
-                # print('Batch data:', 'category', cat, 'name', fn, 'view', view_id)
 
                 # pack all the data for batch training
                 xyz_batch.append(xyz[None, :])
@@ -314,7 +318,6 @@ class Dataloader:
                 # create tf example proto object
                 features = {
                     'name': tf.train.Feature(bytes_list=tf.train.BytesList(value=[filename.encode()])),
-                    # 'gridSize': tf.train.Feature(bytes_list=tf.train.BytesList(value=[grid_size.tostring()])),
                     'xyz': tf.train.Feature(bytes_list=tf.train.BytesList(value=[positions.flatten().tostring()])),
                     'outFlag': tf.train.Feature(bytes_list=tf.train.BytesList(value=[outFlags.flatten().tostring()])),
                     'distance': tf.train.Feature(bytes_list=tf.train.BytesList(value=[distances.tostring()]))
@@ -389,7 +392,6 @@ class Dataloader:
         [input] file_ext: file extension of the original render meta file
         [input] out_name: file name of output camera tfrecord
         '''
-
         if not os.path.isdir(data_dir):
             print('data repository does NOT exist!')
 
@@ -435,5 +437,3 @@ class Dataloader:
 
             example_proto = tf.train.Example(features=tf.train.Features(feature=features))
             writer.write(example_proto.SerializeToString())
-
-

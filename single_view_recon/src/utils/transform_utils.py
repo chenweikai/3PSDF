@@ -1,5 +1,9 @@
-import tensorflow as tf
+"""Utility functions for transformations."""
+
 import numpy as np
+
+import tensorflow as tf
+
 
 def grid_sample(input, grid):
     '''
