@@ -10,7 +10,7 @@ from skimage import measure
 import tensorflow as tf
 from tqdm import tqdm
 
-from model.dataLoader import Dataloader
+from model.data_loader import Dataloader
 from src.utils.io_utils import save_obj_mesh_filterNAN, load_filelist
 from src.utils.transform_utils import getShapenetBbox, computeOctreeSamplingPointsFromBoundingBox
 

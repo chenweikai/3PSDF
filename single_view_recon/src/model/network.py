@@ -3,9 +3,9 @@
 import tensorflow as tf
 from tensorflow.keras import Model
 
-from src.model.imgEncoder import ImageEncoder
-from src.model.mlpClassifier import Classifier
-from src.model.pointConv import PointConv
+from src.model.img_encoder import ImageEncoder
+from src.model.mlp_classifier import Classifier
+from src.model.point_conv import PointConv
 from src.utils.transform_utils import grid_sample
 
 

@@ -1,4 +1,4 @@
-from src.model.dataLoader import Dataloader
+from src.model.data_loader import Dataloader
 
 if __name__ == '__main__':
     # demo script to generate tfrecord of shapenet data for training
