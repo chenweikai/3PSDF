@@ -19,7 +19,7 @@ This code repository currently contains two parts of code: (1) C++ code for comp
 
 ## Install
 
-
+Detailed instructions on installing and using the data generation and single-view reconstruction code can be found in the ReadMe in each repository:  [here](https://github.com/chenweikai/3PSDF/tree/main/data_generation) for data generation and  [here](https://github.com/chenweikai/3PSDF/tree/main/single_view_recon) for single-view reconstruction. 
 
 ## Contacts
 
