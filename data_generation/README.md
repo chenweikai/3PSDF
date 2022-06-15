@@ -22,7 +22,6 @@ The code is only tested on Ubuntu 16.04 and 18.04.
 
 ## Usage
 
-#### 1. Data generation 
 
 After compilation, binaries named `gen_3psdf_samples` and `batch_generate` will be generated.
 
