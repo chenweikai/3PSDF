@@ -11,6 +11,8 @@
 #include <Eigen/Core>
 #include <igl/read_triangle_mesh.h>
 
+namespace l3psdf {
+
 // Compute bounding box of the input mesh
 //
 // @param input_obj_name: input obj mesh name
@@ -55,5 +57,7 @@ void SaveObjMesh(std::string filename, const Eigen::MatrixXd& verts, const Eigen
 // @param out_faces: returned output mesh faces
 void AssembleMeshParts(const std::vector<std::pair<Eigen::MatrixXd, Eigen::MatrixXi>>& mesh_parts,
                        Eigen::MatrixXd& out_verts, Eigen::MatrixXi& out_faces);
+
+}  // namespace l3psdf
 
 #endif // _3PSDF_SRC_LIB_UTILITIES_H_

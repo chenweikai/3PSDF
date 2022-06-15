@@ -7,6 +7,8 @@
 
 #define PI 3.14159265
 
+namespace l3psdf {
+
 typedef std::pair<int,int> CEdge;
 
 // Given point p and triangle (a, b, c), return p's barycentric coordinate (u, v, w)
@@ -383,3 +385,5 @@ std::vector<double> Compute3psdfPerCell(
   delete m_pqp_model;
   return output_dists;
 }
+
+}  // namespace l3psdf

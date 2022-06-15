@@ -6,6 +6,8 @@
 #include <map>
 #include <sstream>
 
+namespace l3psdf {
+
 void ComputeBbox(std::string input_obj_name, Eigen::VectorXd& bbox_min, Eigen::VectorXd& bbox_max) {
   Eigen::MatrixXd verts;
   Eigen::MatrixXi faces;
@@ -153,3 +155,5 @@ void SaveObjMesh(
     fout.close();
   }
 }
+
+}  // namespace l3psdf

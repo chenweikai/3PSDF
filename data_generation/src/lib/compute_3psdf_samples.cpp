@@ -12,6 +12,8 @@
 #include "utilities.h"
 #include "OctreeUtilities.h"
 
+namespace l3psdf {
+
 struct CompareVector3d {
   bool operator()(const Eigen::Vector3d& p1, const Eigen::Vector3d& p2) const {
     if (p1[0] > p2[0])
@@ -95,6 +97,14 @@ map<Eigen::Vector3d, std::vector<int>, CompareVector3d> BuildOctreeVert2FaceMap(
   return vert_to_face;
 }
 
+// Implementation of localized Marching Cubes algorithm.
+// Perform Marching Cubes at each octree cell and assemble the outcome local mesh to a global one.
+//
+// @param octree_verts: vertices of octree cells
+// @param octree_faces: faces of octree cells
+// @param distances: pre-computed 3PSDF distance value for each vertex
+//
+// @return pair of the vertices and faces of the output global mesh
 std::pair<Eigen::MatrixXd, Eigen::MatrixXi>  localized_marching_cubes(
     const std::vector<Eigen::Vector3d>& octree_verts,
     const std::vector<std::vector<int>>& octree_faces,
@@ -134,25 +144,15 @@ std::pair<Eigen::MatrixXd, Eigen::MatrixXi>  localized_marching_cubes(
   return std::make_pair(total_verts, total_faces);
 }
 
-// Generate 3PSDF samples that are the vertices of the octree
-//
-// @param objName: the input file name of obj mesh
-// @param outSDFName: the file name of the output SDF file
-// @param reconObjName: the file name of the output reconstructed mesh
-// @param output_pts_name: the file name of the saved sampling points
-// @param octreeDepth: octree depth for computing the L3PSDF
-// @param flag_write_ply: flag of whether to output the sampling points to PLY file for visualization
-// @param flag_recon_obj: flag of whether to reconstruct the mesh from the computed L3PSDF field
-// @param flag_write_sdf: flag of whether to output SDF file
 void GenerateOctree3psdfSamples(
     std::string input_obj_name,
     std::string out_sdf_name,
     std::string recon_obj_name,
     std::string output_pts_name,
     int octree_depth,
-    bool flag_write_ply,
+    bool flag_write_sdf,
     bool flag_recon_obj,
-    bool flag_write_sdf) {
+    bool flag_write_ply) {
   auto start = std::chrono::high_resolution_clock::now();
 
   // compute octree cells
@@ -254,7 +254,7 @@ void GenerateOctree3psdfSamples(
 
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); 
-  std::cout << "Computing L3PSDF at depth " << octree_depth << " Used time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;
+  std::cout << "Computing 3PSDF at depth " << octree_depth << " Used time: " << duration.count() / double(1000000.0) << " seconds" << std::endl;
   std::cout << "number of inside : outside : nan = " << inside_cnt << " ： " << outside_cnt << " : " << nan_cnt << std::endl;
   std::cout << "ratio of inside : outside : nan = " << 1.0 << " ： " << double(outside_cnt) / inside_cnt << " : " << double(nan_cnt) / inside_cnt << std::endl;
 
@@ -277,14 +277,14 @@ void GenerateOctree3psdfSamples(
     // reconstruct using localized marching cubes
     auto recon_result = localized_marching_cubes(octree_verts, octree_faces, final_dist);
     SaveObjMesh(recon_obj_name, recon_result.first, recon_result.second);
-    std::cout << "Finished writing the reconstructed mesh into " << recon_obj_name << "!" << std::endl;
+    std::cout << "Finished writing the reconstructed mesh (GT for regression) into " << recon_obj_name << "!" << std::endl;
 
     std::string truncated_obj_name = recon_obj_name.substr(0, recon_obj_name.size() - 4);
     // reconstruct truncated field (filled with discrete 0, 1 or nan labels) which is the GT for 3-way classification
     truncated_obj_name += "_truncated.obj";
     auto truncated_recon_result = localized_marching_cubes(octree_verts, octree_faces, truncated_dist);
     SaveObjMesh(truncated_obj_name, truncated_recon_result.first, truncated_recon_result.second);
-    std::cout << "Finished writing the reconstructed truncated mesh into " << truncated_obj_name << "!" << std::endl;
+    std::cout << "Finished writing the reconstructed truncated mesh (GT for 3-way learning) into " << truncated_obj_name << "!" << std::endl;
   }
 
   // output the 3D sampling points to PLY
@@ -295,7 +295,7 @@ void GenerateOctree3psdfSamples(
     }
     Eigen::MatrixXi tmpF;
     igl::writePLY(output_pts_name, points, tmpF);
-    std::cout << "Finished writing the output sampling points into " << output_pts_name << "!" << std::endl;
+    std::cout << "Finished writing the sampling points into " << output_pts_name << "!" << std::endl;
   }
 
   // output the generated 3-pole signed distance field into a .sdf file
@@ -313,6 +313,8 @@ void GenerateOctree3psdfSamples(
            << " " << label << " " << final_dist[i] << std::endl; 
     }
     fout.close();
-    std::cout << "Finished writing the samples into " << out_sdf_name << "!" << std::endl;
+    std::cout << "Finished writing the samples for network training into " << out_sdf_name << "!" << std::endl;
   }
 }
+
+}  // namespace l3psdf

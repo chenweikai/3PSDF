@@ -9,6 +9,8 @@
     #include <Eigen/Core>
 #endif
 
+namespace l3psdf {
+
 // Perform marching cubes on each octree cells and merge the local meshes into a global one.
 //
 // @param octree_verts: input vertices of the octree cells that contains output surface
@@ -36,5 +38,7 @@ void GenerateOctree3psdfSamples(
     std::string recon_obj_name, std::string output_pts_name,
     int octree_depth, bool flag_write_ply,
     bool flag_recon_obj, bool flag_write_sdf);
+
+}  // namespace l3psdf
 
 #endif // _3PSDF_SRC_LIB_COMPUTE_3PSDF_SAMPLES_H_

@@ -1,6 +1,6 @@
 /*
-    1) Generate samples on Octree cell vertices
-    2) Distance computed based on local version of 3-Pole signed distance
+  1) Generate samples on octree cell vertices.
+  2) 3PSDF distance computation based on local octree cells.
 */
 
 #include <chrono> 
@@ -16,9 +16,11 @@
 
 namespace fs = std::experimental::filesystem;
 
+using namespace l3psdf;
+
 int main(int argc, char** argv) {
   if (argc < 9) {
-      std::cout << "usage: ./gen_3psdf_samples input.obj output.sdf recon_obj.obj output_samples.ply octree_depth [default=8] flag_writeSDF flag_writeOBJ flag_writePLY" << std::endl;
+      std::cout << "usage: ./gen_3psdf_samples input.obj output.sdf recon_obj.obj output_samples.ply octree_depth flag_writeSDF flag_writeOBJ flag_writePLY" << std::endl;
   }
 
   std::string objName = "../data/soldier_fight.obj";
@@ -35,7 +37,7 @@ int main(int argc, char** argv) {
   int writePLY = 1;
   int writeOBJ = 1;
   int writeSDF = 1;
-  int octreeDepth = 7;
+  int octreeDepth = 9;
   for(int i = 1; i < argc; ++i) {
     if (i == 1)
         objName = argv[i];
@@ -55,9 +57,9 @@ int main(int argc, char** argv) {
         sscanf(argv[i], "%d", &writePLY);
   }
 
-  bool flag_writePLY = true; // flag of whether to dump the sampling points into .ply file
-  bool flag_reconObj = true; // flag of whether to save the reconstructed obj mesh from sampled 3PSDF
-  bool flag_writeSDF = true; // flag of whether to save the geneated 3PSDF to a .sdf file
+  bool flag_writeSDF = true;  // flag of whether to save the geneated 3PSDF to a .sdf file
+  bool flag_reconObj = true;  // flag of whether to save the reconstructed obj mesh from sampled 3PSDF
+  bool flag_writePLY = true;  // flag of whether to dump the sampling points into .ply file
 
   if (writePLY < 1)
     flag_writePLY = false;
@@ -66,11 +68,10 @@ int main(int argc, char** argv) {
   if (writeSDF < 1)
     flag_writeSDF = false;
 
-  std::cout << "input: writePLY: " << writePLY << " writeOBJ: " << writeOBJ << " writeSDF: " << writeSDF << std::endl;
-  std::cout << "Current setting: ./genOctreeL3PSDFSamples " << objName << " " << outSDFName << " " << reconObjName << " " << output_pts_name << " "
-      << octreeDepth << " " << flag_writePLY  << " " << flag_reconObj  << " " << flag_writeSDF << std::endl;
+  std::cout << "Current setting: ./gen_3psdf_samples " << objName << " " << outSDFName << " " << reconObjName << " " << output_pts_name << " "
+      << octreeDepth << " " << flag_writeSDF << " " << flag_reconObj << " " << flag_writePLY << std::endl;
 
-  GenerateOctree3psdfSamples(objName, outSDFName, reconObjName, output_pts_name, octreeDepth, flag_writePLY, flag_reconObj, flag_writeSDF);
+  GenerateOctree3psdfSamples(objName, outSDFName, reconObjName, output_pts_name, octreeDepth, flag_writeSDF, flag_reconObj, flag_writePLY);
 
   return 1;
 }

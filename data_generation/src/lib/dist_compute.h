@@ -1,4 +1,4 @@
-//  Utilitiy functions for computing distances, e.g. point to mesh distance and 3PSDF.
+// Utilitiy functions for computing distances, e.g. point to mesh distance and 3PSDF.
 
 #ifndef _3PSDF_SRC_LIB_DIST_COMPUTE_H_
 #define _3PSDF_SRC_LIB_DIST_COMPUTE_H_
@@ -11,6 +11,8 @@
     #include <Eigen/Core>
 #endif
 #include "PQP.h"
+
+namespace l3psdf {
 
 // Initialize PQP model for computing unsigned distance from point to mesh
 //
@@ -44,5 +46,7 @@ std::vector<double> Compute3psdfPerCell(
     const std::vector<Eigen::Vector3d>& points,
     const std::pair<Eigen::Vector3d, Eigen::Vector3d>& cell,  // input cell; 
     const int cell_id);
+
+}  // namespace l3psdf
 
 #endif // _3PSDF_SRC_LIB_DIST_COMPUTE_H_
