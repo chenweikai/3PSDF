@@ -28,7 +28,7 @@ After compilation, binaries named `gen_3psdf_samples` and `batch_generate` will 
 
 (1) `gen_3psdf_samples`: the binary generates 3PSDF sampling points using octree-based sampling. 
 
-Simply run `./gen_3psdf_samples` under the `build` folder will activate a demo setting that reconstructs an open box `soldier_fight.obj` under `/data` folder and saves (a) the generated 3PSDF samples (the`.sdf`file), (b) the mesh reconstructed from the computed 3PSDF field (the`.obj`file), and (c) the sampling point positions (the`.ply`file) to the `/output` folder.
+Simply run `./gen_3psdf_samples` under the `build` folder will activate a demo setting that reconstructs `soldier_fight.obj` (a 3D character with both closed and open surfaces) under `/data` folder and saves (a) the generated 3PSDF samples (the`.sdf`file), (b) the mesh reconstructed from the computed 3PSDF field (the`.obj`file), and (c) the sampling point positions (the`.ply`file) to the `/output` folder.
 
 To customize the usage of the program:
 
