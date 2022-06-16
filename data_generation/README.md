@@ -49,7 +49,7 @@ To customize the usage of the program:
 
 `flag_recon_3PSDF`: flag of whether to reconstruct the generated 3PSDF field to a mesh for debug purpose. By default, it is set to 1 to activate the generation; it is disabled when set to 0. 
 
-`flag_writePLY`: flag of whether to generate `.ply` file that encodes the sampling points used in the `.sdf' training data. It is used for debug and visualization purpose. By default, it is set to 1 to activate the generation; it is disabled when set to 0. 
+`flag_writePLY`: flag of whether to generate `.ply` file that encodes the sampling points used in the `.sdf` training data. It is used for debug and visualization purpose. By default, it is set to 1 to activate the generation; it is disabled when set to 0. 
 
 
 (2) `batch_generate`: the binary that generates 3PSDF sampling points in batch. 
