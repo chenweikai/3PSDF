@@ -35,13 +35,15 @@ To customize the usage of the program:
 ./gen_3psdf_samples input.obj output.sdf output_recon.obj output_sample_points.ply octree_depth [default=9] flag_writeSDF [default=1] flag_recon_3PSDF [default=1] flag_writePLY [default=1]"
 ```
 
-`input.obj`: file name of the input mesh for computing its corresponding 3PSDF field. 
+`input.obj`: file name of the input mesh for computing its corresponding 3PSDF field and training data. 
 
-`output.sdf`: file name of the output `.sdf` file. It should be provided no matter whether you would like to generate it or not. 
+`output.sdf`: file name of the output `.sdf` file. It should be provided no matter whether you would like to generate it or not. If you choose not to generate it (flag_writeSDF set as 0), the specified `output.sdf` will not be generated.
 
-`output_recon.obj`: file name of the input mesh for computing its corresponding 3PSDF field. 
+`output_recon.obj`: file name of the output obj mesh that is reconstructed from the generated 3PSDF field. It should be provided no matter whether you would like to generate it or not. If you choose not to generate it (flag_recon_3PSDF set as 0), the specified `output_recon.obj` will not be generated.
 
-`input.obj`: file name of the input mesh for computing its corresponding 3PSDF field. 
+`output_sample_points.ply`: file name of the output point cloud that is the sampling points of training data. It should be provided no matter whether you would like to generate it or not. If you choose not to generate it (flag_writePLY set as 0), the specified `output_sample_points.ply` will not be generated.
+
+`octree_depth`: the depth of the octree that is used to generate sampling points. The larger the depth, the more accurate is the 3PSDF reconstruction.
 
 `flag_writeSDF`: whether to generate `.sdf` file (currenlty can be viewed in any text editor for illustration purpose, you are welcomed to customized it into a binary format for acceleration) that encodes the raw training samples for 3PSDF learning. By default, it is set to 1 to activate sdf generation; it is disabled when set to 0. 
 
@@ -56,7 +58,7 @@ To customize the usage of the program:
 To customize the usage of the program:
 
 ```
-./batch_generate todo_list.txt inDir outSDFDir outObjDir outPlyDir octree_depth [default=9] \
+./batch_generate inDir outSDFDir outObjDir outPlyDir octree_depth [default=9] \
       flag_writeSDF [default=0] flag_writeOBJ [default=1] flag_writePLY [default=1] [todo_list.txt (optional)]"
 ```
 
