@@ -1,2 +1,1 @@
 soldier_fight
-vampire_torch
