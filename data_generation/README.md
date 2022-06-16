@@ -35,6 +35,14 @@ To customize the usage of the program:
 ./gen_3psdf_samples input.obj output.sdf output_recon.obj output_sample_points.ply octree_depth [default=9] flag_writeSDF [default=1] flag_recon_3PSDF [default=1] flag_writePLY [default=1]"
 ```
 
+`input.obj`: file name of the input mesh for computing its corresponding 3PSDF field. 
+
+`output.sdf`: file name of the output `.sdf` file. It should be provided no matter whether you would like to generate it or not. 
+
+`output_recon.obj`: file name of the input mesh for computing its corresponding 3PSDF field. 
+
+`input.obj`: file name of the input mesh for computing its corresponding 3PSDF field. 
+
 `flag_writeSDF`: whether to generate `.sdf` file (currenlty can be viewed in any text editor for illustration purpose, you are welcomed to customized it into a binary format for acceleration) that encodes the raw training samples for 3PSDF learning. By default, it is set to 1 to activate sdf generation; it is disabled when set to 0. 
 
 `flag_recon_3PSDF`: whether to reconstruct the generated 3PSDF field to a mesh for debug purpose. By default, it is set to 1 to activate the generation; it is disabled when set to 0. 
