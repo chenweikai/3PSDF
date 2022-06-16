@@ -27,7 +27,7 @@ After compilation, binaries named `gen_3psdf_samples` and `batch_generate` will 
 
 (1) `gen_3psdf_samples`: the binary generates 3PSDF sampling points using octree-based sampling. 
 
-Simply run `./gen_3psdf_samples` under the `build` folder will activate a demo setting that reconstructs `soldier_fight.obj` (a 3D character with both closed and open surfaces) under `/data` folder and saves (a) the generated 3PSDF samples (the`.sdf`file), (b) the mesh reconstructed from the computed 3PSDF field (the`.obj`file), and (c) the sampling point positions (the`.ply`file) to the `/output` folder.
+Simply run `./gen_3psdf_samples` under the `build` folder will activate a demo setting that reconstructs `soldier_fight.obj` (a 3D character with both closed and open surfaces) under `/data` folder and saves (a) the generated 3PSDF samples for training (the`.sdf`file), (b) the mesh reconstructed from the computed 3PSDF field for debugging purpose (the`.obj`file), and (c) the sampling point positions for debugging purpose (the`.ply`file) to the `/output` folder.
 
 To customize the usage of the program:
 
@@ -37,11 +37,11 @@ To customize the usage of the program:
 
 `input.obj`: file name of the input mesh for computing its corresponding 3PSDF field and training data. 
 
-`output.sdf`: file name of the output `.sdf` file. It should be provided no matter whether you would like to generate it or not. If you choose not to generate it (flag_writeSDF set as 0), the specified `output.sdf` will not be generated.
+`output.sdf`: file name of the output `.sdf` file. It should be provided at all cases. If you choose not to generate it, please set `flag_writeSDF` as 0.
 
-`output_recon.obj`: file name of the output obj mesh that is reconstructed from the generated 3PSDF field. It should be provided no matter whether you would like to generate it or not. If you choose not to generate it (flag_recon_3PSDF set as 0), the specified `output_recon.obj` will not be generated.
+`output_recon.obj`: file name of the output obj mesh that is reconstructed from the generated 3PSDF field. It should be provided at all cases. If you choose not to generate it, please set `flag_recon_3PSDF` as 0.
 
-`output_sample_points.ply`: file name of the output point cloud that is the sampling points of training data. It should be provided no matter whether you would like to generate it or not. If you choose not to generate it (flag_writePLY set as 0), the specified `output_sample_points.ply` will not be generated.
+`output_sample_points.ply`: file name of the output point cloud that is the sampling points of training data. It should be provided at all cases. If you choose not to generate it, please set `flag_writePLY` as 0.
 
 `octree_depth`: the depth of the octree that is used to generate sampling points. The larger the depth, the more accurate is the 3PSDF reconstruction.
 
