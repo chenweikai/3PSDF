@@ -55,5 +55,5 @@ To customize the usage of the program:
 
 ## Contacts
 
-Weikai Chen: <chenwk891@gmail.com>
+If you have any questions, please contact Weikai Chen: <chenwk891@gmail.com>
 
