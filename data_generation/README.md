@@ -7,6 +7,9 @@ This repository contains code for 1) computing 3PSDF field from a given mesh and
 ## Install
 
 This repository is self-contained -- you do not need to install any external libraries. 
+
+However, you do need to get OpenMP ready for your C++ compiler in order to perform parallel computing. Otherwise, the code will be extremely slow.
+
 Simply run the following lines to compile the code:
 
   ```
