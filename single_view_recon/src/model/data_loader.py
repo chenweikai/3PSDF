@@ -124,9 +124,9 @@ class Dataloader:
             file = file_list[index]
             cat = file.split('/')[0]
             fn = file.split('/')[1]
-            sdf_dir_cat = sdf_dir + cat
-            img_dir_cat = img_dir + cat
-            cam_dir_cat = cam_dir + cat
+            sdf_dir_cat = os.path.join(sdf_dir, cat)
+            img_dir_cat = os.path.join(img_dir, cat)
+            cam_dir_cat = os.path.join(cam_dir, cat)
 
             # load the pre-defined SDF tfrecord
             sdf_file = os.path.join(sdf_dir_cat, fn + '.tfrecord')
