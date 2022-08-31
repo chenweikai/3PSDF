@@ -117,7 +117,7 @@ def convert_sdf_file(f, save_path):
     import numpy as np
     next(f)  # skip first line
     parsed = [line.split() for line in f]
-    points = np.array([float(p) for ps in parsed for p in ps[:3]], dtype=np.float16)
+    points = np.array([[float(p) for p in ps[:3]] for ps in parsed], dtype=np.float16)
     labels = np.array([int(ps[3]) for ps in parsed], dtype=np.int16)
     sdf = np.array([float(ps[4]) for ps in parsed], dtype=np.float16)
     np.savez(save_path, points=points, labels=labels, sdf=sdf)
